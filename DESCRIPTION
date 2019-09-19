@@ -1,6 +1,6 @@
 Package: tapnet
 Title: Fit and predict interaction frequency in bipartite network using traits, abundance and phylogeny
-Version: 0.1
+Version: 0.2
 Authors@R: c(person("Carsten", "Dormann", email = "carsten.dormann@biom.uni-freiburg.de", role = c("aut", "cre")), person("Gita", "Benadi", email="gita-benadi@biom.uni-freiburg.de", role="aut"))
 Author: Carsten Dormann [aut, cre], Gita Benadi [aut]
 Maintainer: Carsten Dormann <carsten.dormann@biom.uni-freiburg.de>

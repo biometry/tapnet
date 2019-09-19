@@ -6,10 +6,10 @@
 \title{tapnet: A package for computating the notorious bar statistic.}
 \description{
 The foo package provides three categories of important functions:
-foo, bar and baz.
+making tapnet objects, fitting the tapnet, and predicting to new data. All other functions are helpers or quality monitoring.
 }
-\section{Foo functions}{
+\section{Making a tapnet object}{
 
-The foo functions ...
+To be filled with content ...
 }
 
