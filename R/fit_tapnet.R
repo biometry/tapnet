@@ -8,8 +8,8 @@
 #' 
 #' @param tapnet a tapnet object;
 #' @param ini initial parameter values for the optimization; optional;
-#' @param tmatch_type_pem type of trait matching function for latent traits;
-#' @param tmatch_type_obs type of trait matching function for observed traits;
+#' @param tmatch_type_pem type of trait matching function for latent traits, currently "normal" or "shiftlnorm";
+#' @param tmatch_type_obs type of trait matching function for observed traits, currently "normal" or "shiftlnorm";
 #' @param lambda LASSO shrinkage factor for latent trait parameters;
 #' @param method Optimization method (most derivative-based approaches will not work! SANN is a (slow) alternative to the default);
 #' @param maxit Maximum number of steps for optimization;
@@ -44,7 +44,7 @@ fit_tapnet <- function(tapnet, # a tapnet object
                        hessian = FALSE, # Output hessian for calculation of standard errors?
                        obj_function = "multinom", # Objective function for the optimization,
                        # either "multinom" or "sq_diff"
-                       fit.delta=TRUE # shall the abundance-modifier delta be fit?
+                       fit.delta=TRUEfit # shall the abundance-modifier delta be fit?
 ) {
   # Fit a model of interaction probabilities based on traits, abundances and phylogenies
   # to one or more observed interaction networks
@@ -70,7 +70,7 @@ fit_tapnet <- function(tapnet, # a tapnet object
   if (is.null(ini)) {
     if (tmatch_type_obs == "normal") ini <- c(0, rep(1, nparams-1) ) # runif(nparams) # 1st parameter will be exponentiated
     if (tmatch_type_obs == "shiftlnorm") ini <- runif(nparams)
-    ini[length(ini)] <- 0 # approx. 1 = plogis(10) as value for delta
+    ini[length(ini)] <- 0 # approx. 0.5 = plogis(0) as value for delta
   } else {
     if (length(ini) != nparams) stop("Number of initial values must equal number of parameters to be fitted!") # with delta!
   }

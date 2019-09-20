@@ -23,6 +23,7 @@
 #' @param type trait matching function: either "normal" or "shiftlnorm";
 #' @param width width parameter of trait matching function, similar to sd in the normal;
 #' @param shift shift parameter (optimum trait distance), currently ignored in fitting;
+#' @param err "baseline" probability of match, even if traits do not match at all; 
 #' @param params  parameter vector with setting for tapnet simulation;
 #' @param n  number of latent trait linear combination parameters (lower level);
 #' @param m  number of latent trait linear combination parameters (higher level);
@@ -101,16 +102,17 @@ select_relevant_pems <- function(tree, # a phylogenetic tree
 tmatch <- function(delta_t, # Vector of pairwise trait differences (higher - lower)
                    type = "normal", # Trait matching function
                    width = 1, # Width parameter of trait matching function,
-                   shift = 0 # shift parameter (optimum trait distance)
+                   shift = 0, # shift parameter (optimum trait distance)
+                   err = 1E-5 # "baseline" probability of match, even if traits do not match at all
 ){# Calculate interaction probabilities based on trait matching
   # shift
   delta_t <- delta_t + shift
   
   # lognormal distribution with mode shifted to zero:
-  if(type == "shiftlnorm") out <- dlnorm(delta_t + exp(width - 1), meanlog = width)
+  if(type == "shiftlnorm") out <- dlnorm(delta_t + width, meanlog = log(width) + 1) + err
   
   # normal distribution:
-  if(type == "normal") out <- dnorm(delta_t, mean = 0, sd = width)
+  if(type == "normal") out <- dnorm(delta_t, mean = 0, sd = width) + err
   
   return(out)
 }
