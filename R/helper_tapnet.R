@@ -47,7 +47,7 @@
 #'
 #' @references Benadi et al. in prep
 #'
-#' @author Gita Benadi <gita.benadi@biom.uni-freiburg.de> and Carsten Dormann <carsten.dormann@biom.uni-freiburg.de>
+#' @author Gita Benadi <gita.benadi@biom.uni-freiburg.de>, Carsten Dormann <carsten.dormann@biom.uni-freiburg.de> and Jochen Fründ <jochen.fruend@biom.uni-freiburg.de>
 #'
 #' @examples
 #' \dontrun{
