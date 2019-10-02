@@ -8,6 +8,7 @@
 #' 
 #' @param fit results of applying fit_tapnet to the tapnet object;
 #' @param abuns named list of two entries ("low" and "high"), containing a species-named vector of abundances of the new network
+#' @param tapnet optional name of a tapnet object containing traits, phylogeny etc.; these are not stored in \option{fit}, but rather it is assumed that a tapnet object with the name stored in \option{fit} is available in the global environment. That may not be the case, e.g. when simulating networks. In this case, \option{tapnet} provides the required tapnet-object.
 #' 
 #' @return A matrix of predicted interaction probabilities, summing to 1. This would need to be multiplied by the total number of interactions in the new network to be comparable to the observations. 
 #' 
@@ -28,13 +29,13 @@
 #' @export
 predict_tapnet <- function(#tapnet, # A tapnet object upon which the prediction is based, created with simulate_tapnet
   fit, # Results of applying fit_tapnet to the tapnet object
-  abuns # Abundances of lower and higher trophic level species in the
-  # predicted network (list of two vectors with named elements); if NULL, taken from tapnet object
+  abuns,  # Abundances of lower and higher trophic level species in the predicted network (list of two vectors with named elements); if NULL, taken from tapnet object
+  tapnet=NULL # optional: provide tapnet object if fit does not contain a valid link to an object (such as when the object was simulated but is not availabe in the global environment)
 ) {
   # Predict an interaction network with given species composition and abundances
   # based on parameter estimates from a fitted tapnet object
   
-  tapnet <- get(attr(fit, "tapnet_name")) # uses attribute name to get the tapnet object
+  if (is.null(tapnet)) tapnet <- get(attr(fit, "tapnet_name")) # uses attribute name to get the tapnet object
   
   # Check input format:
   if (class(tapnet) != "tapnet")
@@ -70,9 +71,9 @@ predict_tapnet <- function(#tapnet, # A tapnet object upon which the prediction 
   
   # Calculate PEMs:
   pems <- list()
-  pems_all_low <- pems_from_tree(tapnet$trees$low)
+  pems_all_low <- tapnet:::pems_from_tree(tapnet$trees$low)
   pems$low  <- pems_all_low[rownames(pems_all_low) %in% names(abuns[[1]]), ]
-  pems_all_high <- pems_from_tree(tapnet$trees$high)
+  pems_all_high <- tapnet:::pems_from_tree(tapnet$trees$high)
   pems$high <- pems_all_high[rownames(pems_all_high) %in% names(abuns[[2]]), ]
   
   
