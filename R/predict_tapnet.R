@@ -19,11 +19,11 @@
 #' @examples
 #' \dontrun{
 #'   data(Tinoco)
-#'   tap <- make_tapnet(tree_low = plant_tree, tree_high = humm_tree, networks = networks[2:3], traits_low = plant_traits, traits_high = humm_traits, npems_lat = 4)
+#'   tap <- make_tapnet(tree_low = plant_tree, tree_high = humm_tree, networks = networks[1:2], traits_low = plant_traits, traits_high = humm_traits, npems_lat = 4)
 #'   fit <- fit_tapnet(tap) # uses two networks for fitting!
 #'   gof_tapnet(fit)
-#'   pred1 <- predict_tapnet(fit, abuns=tap$networks[[1]]$abuns) # predict to omitted forest network
-#'   cor(as.vector(pred1*sum(tap$networks[[1]]$web)), as.vector(tap$networks[[1]]$web)) # Pearson correlation with observed interactions
+#'   pred1 <- predict_tapnet(fit, abuns=list("low"=plant_abun[[3]], "high"=humm_abun[[3]] )) # predict to omitted forest network's abundances
+#'   cor(as.vector(pred1*sum(networks[[3]])), as.vector(networks[[3]])) 
 #' }
 #' 
 #' @export

@@ -4,7 +4,8 @@
 #' making tapnet objects, fitting the tapnet, and predicting to new data. All other functions are helpers or quality monitoring.
 #' 
 #' @section Making a tapnet object:
-#' To be filled with content ... For now, see example in Tinoco!
+#' To be filled with content ... For now, see example in predict_tapnet.
+#' Alternatively to having actual observed data, one can simulate a tapnet object.
 #' 
 #' @section Fitting a tapnet
 #' ...
