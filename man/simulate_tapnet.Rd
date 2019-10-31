@@ -71,5 +71,5 @@ str(tapnet, 2) # the structure at the first and second level
 Benadi et al. in prep
 }
 \author{
-Gita Benadi <gita.benadi@biom.uni-freiburg.de> and Carsten Dormann <carsten.dormann@biom.uni-freiburg.de>
+Gita Benadi <gita.benadi@biom.uni-freiburg.de>, Jochen Fründ <jochen.fruend@biom.uni-freiburg.de> and Carsten Dormann <carsten.dormann@biom.uni-freiburg.de>
 }

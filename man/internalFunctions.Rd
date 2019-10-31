@@ -20,7 +20,7 @@ pems_from_tree(tree)
 
 select_relevant_pems(tree, species)
 
-tmatch(delta_t, type = "normal", width = 1, shift = 0)
+tmatch(delta_t, type = "normal", width = 1, shift = 0, err = 1e-05)
 
 param_vec2list(params, n, m, fit.delta = FALSE)
 
@@ -45,6 +45,8 @@ refit_params(tapnet, fit, fitted_I_mat)
 \item{width}{width parameter of trait matching function, similar to sd in the normal;}
 
 \item{shift}{shift parameter (optimum trait distance), currently ignored in fitting;}
+
+\item{err}{"baseline" probability of match, even if traits do not match at all;}
 
 \item{params}{parameter vector with setting for tapnet simulation;}
 
@@ -110,5 +112,5 @@ They do roughly the following:
 Benadi et al. in prep
 }
 \author{
-Gita Benadi <gita.benadi@biom.uni-freiburg.de> and Carsten Dormann <carsten.dormann@biom.uni-freiburg.de>
+Gita Benadi <gita.benadi@biom.uni-freiburg.de>, Carsten Dormann <carsten.dormann@biom.uni-freiburg.de> and Jochen Fründ <jochen.fruend@biom.uni-freiburg.de>
 }

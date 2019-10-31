@@ -1,4 +1,4 @@
-#' tapnet: A package for computating the notorious bar statistic.
+﻿#' tapnet: A package for fitting, and predicting from, bipartite interaction networks.
 #'
 #' The foo package provides three categories of important functions:
 #' making tapnet objects, fitting the tapnet, and predicting to new data. All other functions are helpers or quality monitoring.
@@ -8,10 +8,10 @@
 #' Alternatively to having actual observed data, one can simulate a tapnet object.
 #' 
 #' @section Fitting a tapnet
-#' ...
+#' To be filled with content.
 #' 
 #' @section Predicting from a tapnet
-#' ...
+#' To be filled with content.
 #' 
 #' @section News/versions
 #' \describe{

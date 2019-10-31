@@ -10,6 +10,7 @@ making tapnet objects, fitting the tapnet, and predicting to new data. All other
 }
 \section{Making a tapnet object}{
 
-To be filled with content ...
+To be filled with content ... For now, see example in predict_tapnet.
+Alternatively to having actual observed data, one can simulate a tapnet object.
 }
 

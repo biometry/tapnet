@@ -4,12 +4,14 @@
 \alias{predict_tapnet}
 \title{Predict from fitted tapnet to new data}
 \usage{
-predict_tapnet(fit, abuns)
+predict_tapnet(fit, abuns, tapnet = NULL)
 }
 \arguments{
 \item{fit}{results of applying fit_tapnet to the tapnet object;}
 
 \item{abuns}{named list of two entries ("low" and "high"), containing a species-named vector of abundances of the new network}
+
+\item{tapnet}{optional name of a tapnet object containing traits, phylogeny etc.; these are not stored in \option{fit}, but rather it is assumed that a tapnet object with the name stored in \option{fit} is available in the global environment. That may not be the case, e.g. when simulating networks. In this case, \option{tapnet} provides the required tapnet-object.}
 }
 \value{
 A matrix of predicted interaction probabilities, summing to 1. This would need to be multiplied by the total number of interactions in the new network to be comparable to the observations.
@@ -23,11 +25,11 @@ The fitted tapnet object contains the estimated parameters, describing how trait
 \examples{
 \dontrun{
   data(Tinoco)
-  tap <- make_tapnet(tree_low = plant_tree, tree_high = humm_tree, networks = networks[2:3], traits_low = plant_traits, traits_high = humm_traits, npems_lat = 4)
+  tap <- make_tapnet(tree_low = plant_tree, tree_high = humm_tree, networks = networks[1:2], traits_low = plant_traits, traits_high = humm_traits, npems_lat = 4)
   fit <- fit_tapnet(tap) # uses two networks for fitting!
   gof_tapnet(fit)
-  pred1 <- predict_tapnet(fit, abuns=tap$networks[[1]]$abuns) # predict to omitted forest network
-  cor(as.vector(pred1*sum(tap$networks[[1]]$web)), as.vector(tap$networks[[1]]$web)) # Pearson correlation with observed interactions
+  pred1 <- predict_tapnet(fit, abuns=list("low"=plant_abun[[3]], "high"=humm_abun[[3]] )) # predict to omitted forest network's abundances
+  cor(as.vector(pred1*sum(networks[[3]])), as.vector(networks[[3]])) 
 }
 
 }

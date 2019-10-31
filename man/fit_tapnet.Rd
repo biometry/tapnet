@@ -14,9 +14,9 @@ fit_tapnet(tapnet, ini = NULL, tmatch_type_pem = "normal",
 
 \item{ini}{initial parameter values for the optimization; optional;}
 
-\item{tmatch_type_pem}{type of trait matching function for latent traits;}
+\item{tmatch_type_pem}{type of trait matching function for latent traits, currently "normal" or "shiftlnorm";}
 
-\item{tmatch_type_obs}{type of trait matching function for observed traits;}
+\item{tmatch_type_obs}{type of trait matching function for observed traits, currently "normal" or "shiftlnorm";}
 
 \item{lambda}{LASSO shrinkage factor for latent trait parameters;}
 
