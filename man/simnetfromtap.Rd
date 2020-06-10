@@ -4,8 +4,14 @@
 \alias{simnetfromtap}
 \title{Simulates a network from parameters, abundances, traits and phylogeny provided}
 \usage{
-simnetfromtap(traits, abuns, paramsList, pems, tmatch_type_pem,
-  tmatch_type_obs)
+simnetfromtap(
+  traits,
+  abuns,
+  paramsList,
+  pems,
+  tmatch_type_pem,
+  tmatch_type_obs
+)
 }
 \arguments{
 \item{traits}{a named ("low"/"high") list of species-named trait data matrices for lower and higher trophic level;}

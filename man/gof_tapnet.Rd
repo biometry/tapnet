@@ -4,9 +4,14 @@
 \alias{gof_tapnet}
 \title{Goodness-of-fit of a tapnet fit}
 \usage{
-gof_tapnet(fit, tapnet = NULL, indices = c("connectance", "NODF",
-  "weighted NODF", "H2"), nrep = 1000, se_refit = FALSE,
-  se_nsim = 1000)
+gof_tapnet(
+  fit,
+  tapnet = NULL,
+  indices = c("connectance", "NODF", "weighted NODF", "H2"),
+  nrep = 1000,
+  se_refit = FALSE,
+  se_nsim = 1000
+)
 }
 \arguments{
 \item{fit}{results of applying fit_tapnet to the tapnet object;}

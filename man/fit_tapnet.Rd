@@ -4,10 +4,18 @@
 \alias{fit_tapnet}
 \title{Fit the tapnet model to a network}
 \usage{
-fit_tapnet(tapnet, ini = NULL, tmatch_type_pem = "normal",
-  tmatch_type_obs = "normal", lambda = 0, method = "Nelder",
-  maxit = 50000, hessian = FALSE, obj_function = "multinom",
-  fit.delta = TRUE)
+fit_tapnet(
+  tapnet,
+  ini = NULL,
+  tmatch_type_pem = "normal",
+  tmatch_type_obs = "normal",
+  lambda = 0,
+  method = "Nelder",
+  maxit = 50000,
+  hessian = FALSE,
+  obj_function = "multinom",
+  fit.delta = TRUE
+)
 }
 \arguments{
 \item{tapnet}{a tapnet object;}

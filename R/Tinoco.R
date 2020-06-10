@@ -7,13 +7,7 @@
 #' For sake of clarity, we provide the data as separate objects. So when "Tinoco" is called, it will load seven objects: networks, humm_traits, humm_tree, humm_abun, plant_traits, plant_tree and plant_abun. To combine them into a useable tapnet object, use \code{\link{make_tapnet}}. Phylogenetic trees are of class "phylo" (as used/produced by \pkg{phytools}). Abundance data were provided independently of the other data directly by Boris (the other data are on dryad \url{http://dx.doi.org/10.5061/dryad.j860}). For the external abundances of hummingbirds, 12 point counts were performed in the same habitats where hummingbird - plant interactions were observed. "Abundance were obtained by averaging the abundance of each species per point count across the study period." "Plant abundances are averages across the study period." Many thanks to Boris for making his data freely available!
 #'
 #' @name Tinoco
-#' @alias humm_traits
-#' @alias humm_tree
-#' @alias humm_abun
-#' @alias networks
-#' @alias plant_tree
-#' @alias plant_traits
-#' @alias plant_abun
+#' @aliases humm_traits humm_tree  humm_abun networks plant_tree plant_traits plant_abun
 #' @docType data
 #' @references Tinoco, B. A.; Graham, C. H.; Aguilar, J. M. & Schleuning, M. Effects of hummingbird morphology on specialization in pollination networks vary with resource availability. \emph{Oikos} \bold{126}, 52-–60
 #' 

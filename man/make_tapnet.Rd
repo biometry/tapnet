@@ -4,9 +4,17 @@
 \alias{make_tapnet}
 \title{Constructs an object of type "tapnet"}
 \usage{
-make_tapnet(tree_low, tree_high, networks, abun_low = NULL,
-  abun_high = NULL, traits_low = NULL, traits_high = NULL,
-  npems_lat = NULL, use.all.pems = FALSE)
+make_tapnet(
+  tree_low,
+  tree_high,
+  networks,
+  abun_low = NULL,
+  abun_high = NULL,
+  traits_low = NULL,
+  traits_high = NULL,
+  npems_lat = NULL,
+  use.all.pems = FALSE
+)
 }
 \arguments{
 \item{tree_low}{phylogenetic tree of lower trophic level; required;}

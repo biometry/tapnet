@@ -4,12 +4,28 @@
 \alias{simulate_tapnet}
 \title{Creates a simulated along with all parameters, abundances, traits and phylogeny used}
 \usage{
-simulate_tapnet(nlower, nhigher, ntraits_nopem, ntraits_pem,
-  pem_noise = 0.5, abuns = "lognormal", meanlog = 0, sdlog = 1,
-  tmatch_type_pem = "normal", tmatch_type_obs = "normal",
-  npems_lat = NULL, lat_low = 1, lat_high = 1,
-  tmatch_width_pem = 1, pem_shift = 0, tmatch_width_obs = 1,
-  Nwebs = 1, prop_species = 1, new_abuns = FALSE, Nobs = 1000)
+simulate_tapnet(
+  nlower,
+  nhigher,
+  ntraits_nopem,
+  ntraits_pem,
+  pem_noise = 0.5,
+  abuns = "lognormal",
+  meanlog = 0,
+  sdlog = 1,
+  tmatch_type_pem = "normal",
+  tmatch_type_obs = "normal",
+  npems_lat = NULL,
+  lat_low = 1,
+  lat_high = 1,
+  tmatch_width_pem = 1,
+  pem_shift = 0,
+  tmatch_width_obs = 1,
+  Nwebs = 1,
+  prop_species = 1,
+  new_abuns = FALSE,
+  Nobs = 1000
+)
 }
 \arguments{
 \item{nlower}{species number in lower trophic level;}

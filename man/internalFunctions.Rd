@@ -24,8 +24,15 @@ tmatch(delta_t, type = "normal", width = 1, shift = 0, err = 1e-05)
 
 param_vec2list(params, n, m, fit.delta = FALSE)
 
-loglik_tapnet(params, networks, tmatch_type_pem, tmatch_type_obs,
-  lambda = 0, obj_function = "multinom", fit.delta = TRUE)
+loglik_tapnet(
+  params,
+  networks,
+  tmatch_type_pem,
+  tmatch_type_obs,
+  lambda = 0,
+  obj_function = "multinom",
+  fit.delta = TRUE
+)
 
 latent_cor(true_pars, fitted_pars, pems_low, pems_high)
 

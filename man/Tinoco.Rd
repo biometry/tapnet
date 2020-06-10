@@ -4,8 +4,16 @@
 \name{Tinoco}
 \alias{Tinoco}
 \alias{humm_traits}
+\alias{humm_tree}
+\alias{humm_abun}
+\alias{networks}
+\alias{plant_tree}
+\alias{plant_traits}
+\alias{plant_abun}
 \title{Hummingbird-flower networks}
-\format{An object of class \code{matrix} with 14 rows and 1 columns.}
+\format{
+An object of class \code{matrix} (inherits from \code{array}) with 14 rows and 1 columns.
+}
 \usage{
 data(Tinoco)
 }

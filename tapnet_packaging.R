@@ -5,6 +5,8 @@ setwd("..")
 build("tapnet", path="tapnet")   # build the .tar.gz file
 install("tapnet") # install on the computer
 
+# check_built("tapnet") # is included in:^
+devtools::check("tapnet")
 
 
 # prepare things:
