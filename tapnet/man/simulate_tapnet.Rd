@@ -42,6 +42,8 @@ simulate_tapnet(
 
 \item{meanlog}{parameters of the log-normal distribution for drawing abundances;}
 
+\item{sdlog}{same as before, but width;}
+
 \item{tmatch_type_pem}{type of trait matching function for latent traits;}
 
 \item{tmatch_type_obs}{type of trait matching function for observed traits (can be a vector as long as there are traits);}
@@ -65,8 +67,6 @@ simulate_tapnet(
 \item{new_abuns}{If abuns = "lognormal" and Nwebs > 1, should new abundances be drawn for each web?}
 
 \item{Nobs}{number of observed interactions per web}
-
-\item{sdlogsame}{as before, but width;}
 }
 \value{
 A tapnet object, with a highly nested structure. There are six entries at the top level: trees, traits_all, networks, sim_params and the two tmatch types. Within networks, there is a list of 5 entries (for each of the \option{Nweb} networks): abundances, traits, PEMs, web and I_mat. "I_mat" is the actual output from simnetfromtap, while "web" is a single draw from a multinomial distribution with I_mat as probabilities and \option{Nobs} as size.
@@ -78,7 +78,8 @@ Simulation function to produce a tapnet object, i.e. one or more networks along 
 This function was written to explore the fitting of networks by different methods. Hence, we first have to simulate such networks. It is a very nice starting point for simulations, but irrelevant for tapnet-based analyses. The function internally sets up all the parameters and then calls \code{\link{simnetfromtap}} for the simulation of the actual network. Lots of options means, regrettably, lots of decisions for the user.
 }
 \examples{
-tapnet <- simulate_tapnet(nlower=10, nhigher=20, ntraits_nopem=2, ntraits_pem=0) # a minimal call of simulate_tapnet
+tapnet <- simulate_tapnet(nlower=10, nhigher=20, ntraits_nopem=2, ntraits_pem=0) 
+# a minimal call of simulate_tapnet
 str(tapnet, 1) # the structure at the first level
 str(tapnet, 2) # the structure at the first and second level
 

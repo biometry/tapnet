@@ -7,7 +7,7 @@
 tapnet2df(tapnetObject)
 }
 \arguments{
-\item{fit}{results of applying fit_tapnet to the tapnet object;}
+\item{tapnetObject}{results of applying fit_tapnet to the tapnet object;}
 }
 \value{
 A data.frame containing network observations, PEMs, traits and abundances for regression-type analysis.
@@ -19,6 +19,7 @@ Function allows direct use of data prepared for tapnet analysis by other statist
 This function simply puts all data into a data.frame, with each row an entry in the network matrix.
 }
 \examples{
+ex <- simulate_tapnet(nlower=10, nhigher=50, ntraits_pem=3, ntraits_nopem=2, Nwebs = 3)
 df <- tapnet2df(ex)
 head(df)
 \dontrun{

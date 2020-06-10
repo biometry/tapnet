@@ -172,7 +172,7 @@ loglik_tapnet <- function(params, # Parameters (a *named* vector)
     paramsList$lat_low <- parList$lat_low[which(names(parList$lat_low) %in% colnames(networks[[i]]$pems$low))]
     paramsList$lat_high <- parList$lat_high[which(names(parList$lat_high) %in% colnames(networks[[i]]$pems$high))]
     I_mat <- simnetfromtap(traits = networks[[i]]$traits, abuns = networks[[i]]$abuns,
-                           params = paramsList, pems = networks[[i]]$pems,
+                           paramsList = paramsList, pems = networks[[i]]$pems,
                            tmatch_type_pem = tmatch_type_pem, tmatch_type_obs = tmatch_type_obs)
     if (obj_function == "multinom") {
       obj[i] <- dmultinom(as.vector(networks[[i]]$web), size = sum(networks[[i]]$web),

@@ -23,7 +23,8 @@
 #'
 #' @examples
 #' data(Tinoco)
-#' tapnet_web1 <- make_tapnet(tree_low = plant_tree, tree_high = humm_tree, networks = networks[1], traits_low = plant_traits, traits_high = humm_traits, npems_lat = 4)
+#' tapnet_web1 <- make_tapnet(tree_low = plant_tree, tree_high = humm_tree, networks = networks[1], 
+#'                traits_low = plant_traits, traits_high = humm_traits, npems_lat = 4)
 #' str(tapnet_web1) # show tapnet structure
 #'
 #' @export
@@ -54,7 +55,7 @@ make_tapnet <- function(tree_low, # phylogenetic tree of lower trophic level (re
   # Networks
   if (!is.list(networks)) networks <- list(networks)
   mat_check <- sapply(networks, is.matrix)
-  if (any(mat_check == F)) stop("All elements of 'networks' must be matrices.")
+  if (any(mat_check == FALSE)) stop("All elements of 'networks' must be matrices.")
   
   # Are all species named?
   for (i in 1:length(networks)) {

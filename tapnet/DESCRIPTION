@@ -5,8 +5,8 @@ Authors@R: c(person("Carsten", "Dormann", email = "carsten.dormann@biom.uni-frei
 Author: Carsten Dormann [aut, cre], Gita Benadi [aut]
 Maintainer: Carsten Dormann <carsten.dormann@biom.uni-freiburg.de>
 Description: This package contains an assortment of functions to produce, fit and predict from bipartite networks with abundance, trait and phylogenetic information.
-Depends: R (>= 3.5.0), ape, bipartite, MPSEM, phytools, vegan
-Imports: ape, bipartite, MPSEM, phytools, vegan
+Depends: R (>= 3.5.0)
+Imports: ape, bipartite, MPSEM, phytools, stats, utils, vegan
 License: GPL
 Encoding: UTF-8
 LazyData: true

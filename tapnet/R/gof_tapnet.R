@@ -23,7 +23,8 @@
 #' @examples
 #' \dontrun{
 #'   data(Tinoco)
-#'   tap <- make_tapnet(tree_low = plant_tree, tree_high = humm_tree, networks = networks[2:3], traits_low = plant_traits, traits_high = humm_traits, npems_lat = 4)
+#'   tap <- make_tapnet(tree_low = plant_tree, tree_high = humm_tree, networks = networks[2:3], 
+#'          traits_low = plant_traits, traits_high = humm_traits, npems_lat = 4)
 #'   fit <- fit_tapnet(tap) # uses networks 2 and 3 for fitting!
 #'   gof_tapnet(fit)
 #' }
@@ -66,7 +67,7 @@ gof_tapnet <- function(
     paramsList <- fit$par_opt
     paramsList$lat_low <- paramsList$lat_low[which(names(paramsList$lat_low) %in% colnames(web$pems$low))]
     paramsList$lat_high <- paramsList$lat_high[which(names(paramsList$lat_high) %in% colnames(web$pems$high))]
-    fitted_I_mat[[i]] <- simnetfromtap(traits = web$traits, abuns = web$abuns, params = paramsList,
+    fitted_I_mat[[i]] <- simnetfromtap(traits = web$traits, abuns = web$abuns, paramsList = paramsList,
                                        pems = web$pems, tmatch_type_pem = fit$tmatch_type_pem,
                                        tmatch_type_obs = fit$tmatch_type_obs)
     # a) Compare entries of fitted and true interaction matrices

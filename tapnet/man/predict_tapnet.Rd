@@ -25,10 +25,12 @@ The fitted tapnet object contains the estimated parameters, describing how trait
 \examples{
 \dontrun{
   data(Tinoco)
-  tap <- make_tapnet(tree_low = plant_tree, tree_high = humm_tree, networks = networks[1:2], traits_low = plant_traits, traits_high = humm_traits, npems_lat = 4)
+  tap <- make_tapnet(tree_low = plant_tree, tree_high = humm_tree, networks = networks[1:2], 
+         traits_low = plant_traits, traits_high = humm_traits, npems_lat = 4)
   fit <- fit_tapnet(tap) # uses two networks for fitting!
   gof_tapnet(fit)
-  pred1 <- predict_tapnet(fit, abuns=list("low"=plant_abun[[3]], "high"=humm_abun[[3]] )) # predict to omitted forest network's abundances
+  # predict to omitted forest network's abundances:
+  pred1 <- predict_tapnet(fit, abuns=list("low"=plant_abun[[3]], "high"=humm_abun[[3]] )) 
   cor(as.vector(pred1*sum(networks[[3]])), as.vector(networks[[3]])) 
 }
 

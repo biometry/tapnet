@@ -19,10 +19,12 @@
 #' @examples
 #' \dontrun{
 #'   data(Tinoco)
-#'   tap <- make_tapnet(tree_low = plant_tree, tree_high = humm_tree, networks = networks[1:2], traits_low = plant_traits, traits_high = humm_traits, npems_lat = 4)
+#'   tap <- make_tapnet(tree_low = plant_tree, tree_high = humm_tree, networks = networks[1:2], 
+#'          traits_low = plant_traits, traits_high = humm_traits, npems_lat = 4)
 #'   fit <- fit_tapnet(tap) # uses two networks for fitting!
 #'   gof_tapnet(fit)
-#'   pred1 <- predict_tapnet(fit, abuns=list("low"=plant_abun[[3]], "high"=humm_abun[[3]] )) # predict to omitted forest network's abundances
+#'   # predict to omitted forest network's abundances:
+#'   pred1 <- predict_tapnet(fit, abuns=list("low"=plant_abun[[3]], "high"=humm_abun[[3]] )) 
 #'   cor(as.vector(pred1*sum(networks[[3]])), as.vector(networks[[3]])) 
 #' }
 #' 
@@ -71,9 +73,9 @@ predict_tapnet <- function(#tapnet, # A tapnet object upon which the prediction 
   
   # Calculate PEMs:
   pems <- list()
-  pems_all_low <- tapnet:::pems_from_tree(tapnet$trees$low)
+  pems_all_low <- pems_from_tree(tapnet$trees$low)
   pems$low  <- pems_all_low[rownames(pems_all_low) %in% names(abuns[[1]]), ]
-  pems_all_high <- tapnet:::pems_from_tree(tapnet$trees$high)
+  pems_all_high <- pems_from_tree(tapnet$trees$high)
   pems$high <- pems_all_high[rownames(pems_all_high) %in% names(abuns[[2]]), ]
   
   
@@ -100,7 +102,7 @@ predict_tapnet <- function(#tapnet, # A tapnet object upon which the prediction 
   # Predict the matrix of interaction probabilities:
   predicted_Imat <- simnetfromtap(traits = traits, 
                                   abuns = abuns, 
-                                  params = paramsList, 
+                                  paramsList = paramsList, 
                                   pems = pems, 
                                   tmatch_type_pem = fit$tmatch_type_pem, 
                                   tmatch_type_obs = fit$tmatch_type_obs)

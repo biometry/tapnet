@@ -13,7 +13,7 @@
 #' @param pem_noise noise (sd of normal dist) to put on PEMs;
 #' @param abuns abundances set to "lognormal", "equal" or a list of two abundance vectors;
 #' @param meanlog parameters of the log-normal distribution for drawing abundances;
-#' @param sdlogsame as before, but width;
+#' @param sdlog same as before, but width;
 #' @param tmatch_type_pem  type of trait matching function for latent traits;
 #' @param tmatch_type_obs  type of trait matching function for observed traits (can be a vector as long as there are traits);
 #' @param npems_lat number of phylogenetic eigenvectors to be used to construct latent traits. If NULL, all eigenvectors will be used;
@@ -36,7 +36,8 @@
 #' @author Gita Benadi <gita.benadi@biom.uni-freiburg.de>, Jochen Fründ <jochen.fruend@biom.uni-freiburg.de> and Carsten Dormann <carsten.dormann@biom.uni-freiburg.de>
 #'
 #' @examples
-#' tapnet <- simulate_tapnet(nlower=10, nhigher=20, ntraits_nopem=2, ntraits_pem=0) # a minimal call of simulate_tapnet
+#' tapnet <- simulate_tapnet(nlower=10, nhigher=20, ntraits_nopem=2, ntraits_pem=0) 
+#' # a minimal call of simulate_tapnet
 #' str(tapnet, 1) # the structure at the first level
 #' str(tapnet, 2) # the structure at the first and second level
 #'

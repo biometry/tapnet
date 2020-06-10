@@ -38,7 +38,8 @@ This is a function particularly interesting for simulated data, when the true pa
 \examples{
 \dontrun{
   data(Tinoco)
-  tap <- make_tapnet(tree_low = plant_tree, tree_high = humm_tree, networks = networks[2:3], traits_low = plant_traits, traits_high = humm_traits, npems_lat = 4)
+  tap <- make_tapnet(tree_low = plant_tree, tree_high = humm_tree, networks = networks[2:3], 
+         traits_low = plant_traits, traits_high = humm_traits, npems_lat = 4)
   fit <- fit_tapnet(tap) # uses networks 2 and 3 for fitting!
   gof_tapnet(fit)
 }

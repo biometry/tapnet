@@ -6,7 +6,7 @@
 #'
 #' @aliases tapnet2df
 #' 
-#' @param fit results of applying fit_tapnet to the tapnet object;
+#' @param tapnetObject results of applying fit_tapnet to the tapnet object;
 #' 
 #' @return A data.frame containing network observations, PEMs, traits and abundances for regression-type analysis. 
 #' 
@@ -15,7 +15,7 @@
 #' @author Carsten Dormann <carsten.dormann@biom.uni-freiburg.de>
 #'
 #' @examples
-#  ex <- simulate_tapnet(nlower=10, nhigher=50, ntraits_pem=3, ntraits_nopem=2, Nwebs = 3)
+#' ex <- simulate_tapnet(nlower=10, nhigher=50, ntraits_pem=3, ntraits_nopem=2, Nwebs = 3)
 #' df <- tapnet2df(ex)
 #' head(df)
 #' \dontrun{

@@ -1,8 +1,8 @@
 library(devtools)
-setwd("~/Data/aktuell/Networks/tapnet/")
+setwd("~/Data/aktuell/Networks/tapnet/tapnet")
 document() # process R-functions into .RD files, change namespace
 setwd("..")
-build("tapnet", path="tapnet")   # build the .tar.gz file
+build("tapnet")   # build the .tar.gz file
 install("tapnet") # install on the computer
 
 # check_built("tapnet") # is included in:^

@@ -9,7 +9,8 @@
 *-Ex.R
 
 # Output files from R CMD build
-#/*.tar.gz
+/tapnet_0.1.tar.gz
+/tapnet_0.2.tar.gz
 
 # Output files from R CMD check
 /*.Rcheck/

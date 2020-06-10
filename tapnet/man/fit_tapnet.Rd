@@ -50,7 +50,8 @@ The core function for using the tapnet approach: it fits the model to the data (
 \examples{
 \dontrun{
  data(Tinoco)
- tap <- make_tapnet(tree_low = plant_tree, tree_high = humm_tree, networks = networks[2:3], traits_low = plant_traits, traits_high = humm_traits, npems_lat = 4)
+ tap <- make_tapnet(tree_low = plant_tree, tree_high = humm_tree, networks = networks[2:3], 
+        traits_low = plant_traits, traits_high = humm_traits, npems_lat = 4)
  fit <- fit_tapnet(tap) # fits to networks 2 and 3 only
  str(fit)  
 }

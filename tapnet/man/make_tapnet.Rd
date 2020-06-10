@@ -46,7 +46,8 @@ Tapnet objects are the starting point for almost all other tapnet functions. The
 }
 \examples{
 data(Tinoco)
-tapnet_web1 <- make_tapnet(tree_low = plant_tree, tree_high = humm_tree, networks = networks[1], traits_low = plant_traits, traits_high = humm_traits, npems_lat = 4)
+tapnet_web1 <- make_tapnet(tree_low = plant_tree, tree_high = humm_tree, networks = networks[1], 
+               traits_low = plant_traits, traits_high = humm_traits, npems_lat = 4)
 str(tapnet_web1) # show tapnet structure
 
 }
