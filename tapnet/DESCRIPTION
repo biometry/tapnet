@@ -1,15 +1,17 @@
 Package: tapnet
-Title: Fit and predict interaction frequency in bipartite network using traits, abundance and phylogeny
+Title: Fit and Predict Interaction Frequency in Bipartite Networks using Traits, Abundance and Phylogeny
 Version: 0.3
-Authors@R: c(person("Carsten", "Dormann", email = "carsten.dormann@biom.uni-freiburg.de", role = c("aut", "cre")), person("Gita", "Benadi", email="gita-benadi@biom.uni-freiburg.de", role="aut"))
+Authors@R: c(person("Carsten", "Dormann", email = "carsten.dormann@biom.uni-freiburg.de", role = c("aut", "cre")), person("Gita", "Benadi", email="gita.benadi@biom.uni-freiburg.de", role="aut"))
 Author: Carsten Dormann [aut, cre], Gita Benadi [aut]
 Maintainer: Carsten Dormann <carsten.dormann@biom.uni-freiburg.de>
-Description: This package contains an assortment of functions to produce, fit and predict from bipartite networks with abundance, trait and phylogenetic information.
+Description: Assortment of functions to produce, fit and predict from bipartite networks with abundance, trait and phylogenetic information.
 Depends: R (>= 3.5.0)
 Imports: ape, bipartite, MPSEM, phytools, stats, utils, vegan
 License: GPL
 Encoding: UTF-8
+Suggests: knitr, mgcv, ranger
+VignetteBuilder: knitr, utils
 LazyData: true
 ByteCompile: true
 URL: https://github.com/biometry/tapnet
-RoxygenNote: 7.1.0
+RoxygenNote: 7.1.1

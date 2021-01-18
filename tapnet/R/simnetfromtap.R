@@ -105,7 +105,7 @@ simnetfromtap <- function(traits, # named list of trait data matrices for lower 
     delta <- paramsList[["delta"]]
     #A_mat <- (A_mat^plogis(delta)) / sum(A_mat^plogis(delta)) # renormalise to sum to 1
     #L_mat <- (L_mat^plogis(delta)) / sum(L_mat^plogis(delta)) # renormalise to sum to 1
-    LT <- (L_mat * T_mat)^plogis(delta) / sum((L_mat * T_mat)^plogis(delta)) # delta now balances abundance vs. traits
+    LT <- (L_mat * T_mat)^(plogis(delta)) / sum((L_mat * T_mat)^(plogis(delta))) # delta now balances abundance vs. traits
   }
   
   # Put everything together:
