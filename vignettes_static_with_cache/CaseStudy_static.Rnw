@@ -1,0 +1,702 @@
+%\VignetteIndexEntry{CaseStudy}
+%\VignetteEncoding{UTF-8}
+
+\documentclass[a4paper, 11pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath} % e.g. for \text{} in math
+\usepackage[T1]{fontenc}
+\usepackage{geometry}
+  \geometry{verbose,tmargin=2cm,bmargin=2cm,lmargin=2cm,rmargin=2cm}
+  \setcounter{secnumdepth}{3}
+  \setcounter{tocdepth}{3}
+\usepackage[ttscale=0.85]{libertine}
+\usepackage{makeidx}
+  \makeindex
+\usepackage{natbib}
+\usepackage{url}
+\usepackage[unicode=true,pdfusetitle,
+ bookmarks=true,bookmarksnumbered=true,bookmarksopen=true,bookmarksopenlevel=2,
+ breaklinks=true,pdfborder={0 0 1},backref=page,colorlinks=false, hidelinks]
+ {hyperref}
+\usepackage{breakurl}
+\usepackage{titlesec} % for titleformat
+\usepackage[nottoc]{tocbibind} % include reference in table of content
+\usepackage{wrapfig}
+\usepackage[dvipsnames]{xcolor}
+	\definecolor{DarkGreen}{rgb}{0, .1, 0}
+	\color{DarkGreen}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% User specified LaTeX commands.
+% % % % % % %  section numbering onto margins % % % %
+\newlength\mylensection
+\setlength\mylensection{\dimexpr\oddsidemargin+1.5cm+\hoffset\relax}
+\titleformat{\section}{\normalfont\Large\itshape}{\llap{\hspace*{-\mylensection}\textcolor{YellowGreen}{\textbf{\LARGE{ \thesection}}}\hfill}}{0em}{} %
+
+\newlength\mylensubsection
+\setlength\mylensubsection{\dimexpr\oddsidemargin+1.5cm+\hoffset\relax}
+\titleformat{\subsection}{\normalfont\large\itshape}{\llap{\hspace*{-\mylensubsection}\textcolor{YellowGreen}{\textbf{\Large{ \thesubsection}}}\hfill}}{0em}{} %
+
+\newlength\mylensubsubsection
+\setlength\mylensubsubsection{\dimexpr\oddsidemargin+1.2cm+\hoffset\relax}
+\titleformat{\subsubsection}{\normalfont\large\itshape}{\llap{\hspace*{-\mylensubsubsection}\textcolor{YellowGreen}{\textbf{\Large{ \thesubsubsection}}}\hfill}}{0em}{} %
+
+
+\renewcommand{\textfraction}{0.05}
+\renewcommand{\topfraction}{0.8}
+\renewcommand{\bottomfraction}{0.8}
+\renewcommand{\floatpagefraction}{0.75}
+
+\newcommand{\package}[1]{\textbf{#1}}
+\newcommand{\proglang}[1]{\textsl{#1}}
+\newcommand{\code}[1]{\texttt{#1}}
+\newcommand{\ind}[1]{#1\index{#1}}           			   % \ind{bla} instead of bla\index{bla}
+\newcommand{\indE}[1]{\emph{#1}\index{#1@\emph{#1}}}       % dito for emphasised words (e.g. English)
+\newcommand{\indR}[1]{\texttt{#1}\index{#1@\texttt{#1}}}   % dito for typewriter
+
+
+\renewcommand{\vec}[1]{\mathbf{#1}}                   % replaces the arrow over vectors by bold-print
+
+\setlength{\parindent}{0pt}
+
+
+\frenchspacing % avoid long spaces after a "."
+
+\begin{document}
+
+\title{A quick guide on how to use tapnet}
+
+\author{Carsten F. Dormann}
+%\thanks{\href{mailto:carsten.dormann@biom.uni-freiburg.de}{carsten.dormann@biom.uni-freiburg.de}}
+
+\maketitle
+
+
+<<setup, include=FALSE, cache=FALSE, echo=FALSE>>=
+library(knitr)
+opts_chunk$set(fig.path='figure/', fig.align='center', fig.width=6, fig.height=6, fig.show='hold', cache=T, tidy=F, tidy.opts=list(width.cutoff=65), size="small")
+#render_listings() # makes pretty formatting but allows lines to overflow
+options(width = 80)
+@
+
+
+
+\begin{abstract}
+\noindent This document presents the case study of Benadi et al. (2021), using the data of Tinoco et al. (2017). It thereby also serves as tutorial for the use of the ``tapnet'' package.
+\end{abstract}
+
+\tableofcontents
+
+\bigskip
+
+\bigskip
+
+This supplement presents the workflow for the case study. It may also serve as tutorial for the use of tapnet functions.
+
+\textbf{References}\\
+Benadi, G., Dormann, C.F., Fründ, J., Stephan, R.\& Vázquez, D.P. (2021) Quantitative prediction of interactions in bipartite networks based on traits, abundances, and phylogeny. \emph{The American Naturalist}, in press. \\
+Tinoco, B.A, Graham, C.H., Aguilar, J.M. \& Schleuning, M. (2017) \emph{Oikos} 126, 52--60. DOI: 10.1111/oik.02998
+
+%############################################## 
+\clearpage
+\section{Data preparation}
+<<load data, message=F, cache=F>>=
+library(tapnet)
+data(Tinoco)
+@
+
+First, we have to put all information into a single `tapnet' object, using \code{make\_tapnet}:
+<<construct tapnet objects, eval=T>>=
+# Produce tapnet objects using each network separately (1=Forest, 2=shrub, 3=cattle farm)
+tapnet_web1 <- make_tapnet(tree_low = plant_tree, tree_high = humm_tree, 
+                           networks = networks[1], traits_low = plant_traits, 
+                           traits_high = humm_traits, abun_low=plant_abun[1], 
+                           abun_high=humm_abun[1], npems_lat = 4)
+tapnet_web2 <- make_tapnet(tree_low = plant_tree, tree_high = humm_tree, 
+                           networks = networks[2], traits_low = plant_traits, 
+                           traits_high = humm_traits, abun_low=plant_abun[2], 
+                           abun_high=humm_abun[2], npems_lat = NULL)
+@
+Note: 
+
+(a) We use only 4 phylogenetic eigenvectors (PEMs, for ``maps'', and because PE is too short to be unambiguous) for the first network, but all for the other two for evaluation. The ``value'' NULL enforces the use of all PEMs.
+
+(b) Because each web has only some species present, some PEMs will automatically be dropped (those relevant only for the missing species). As a consequence, web2 may now \textbf{not} have the same PEMs used for web1 (which are required for prediction from web1 to web 2). Let's check:
+
+<<cache=T>>=
+colnames(tapnet_web1$networks[[1]]$pems$low) # names of fitted PEMs
+colnames(tapnet_web1$networks[[1]]$pems$high)
+
+colnames(tapnet_web2$networks[[1]]$pems$low) # names of PEMs all present 
+                                             
+colnames(tapnet_web2$networks[[1]]$pems$high) # V_8 (high) is missing!
+@
+We can see that for the lower level, all PEMs were computed for web2, but not for the higher level, where \code{V\_8} is missing. We compute that, using the helper function \code{pems\_from\_tree}, and add it to the tapnet-object. (Because this function is not exported, we need to use the triple-colon when calling it explicitly from the package.) Then we do the same with web3.
+<<cache=T>>=
+tapnet_web2$networks[[1]]$pems$high$V_8 <- tapnet:::pems_from_tree(humm_tree)[colnames(
+  tapnet_web2$networks[[1]]$web), "V_8"]
+colnames(tapnet_web2$networks[[1]]$pems$high) # check: complete!
+@
+Using the \code{colnames(.)}-line we can check that they are now complete (not shown).
+
+As an additional preliminary step, we may want to check for correlation between the phylogenetic eigenvectors and the observed traits:
+<<correlate PEMs and observed>>=
+cor(cbind(tapnet_web1$networks[[1]]$pems$low, tapnet_web1$networks[[1]]$traits$low))
+cor(cbind(tapnet_web1$networks[[1]]$pems$high, tapnet_web1$networks[[1]]$traits$high))
+@
+In this case, correlations are moderate ($-0.4$ for the strongest lower-level and $0.58$ for the higher-level traits) and indicate some phylogenetic signal in the observed trait. Note, however, that latent traits are linear combinations of phylogenetic traits and this correlation does not check for collinearity with such a construct. We shall do that after fitting.
+
+
+\section{Fit web1 using the tapnet approach}
+We here assume that all trait matches are best described using a normal distribution. Alternatively, we could use the shifted log-normal. Next, we evaluate the goodness-of-fit of this fit:
+<<fit tapnet, cache=T>>=
+fit_web1 <- fit_tapnet(tapnet = tapnet_web1, method="SANN") # very slow, but reliable
+#fit_web1 <- fit_tapnet(tapnet = tapnet_web1) # the default way
+#fit_web1ln <- fit_tapnet(tapnet = tapnet_web1, tmatch_type_obs = "shiftlnorm", 
+#                         ini=fit_web1$opt$par*2) # requires some tempering with ini
+gof_web1_norm <- gof_tapnet(fit_web1)
+gof_web1_norm
+@
+%Note that not every run of \code{fit\_tapnet} will be successful; many start with poor choice of initial parameters and hence throw an error message. This is something we still have to work on.
+
+The goodness-of-fit function returns the similarity between fitted and observed network expressed as Bray-Curtis similarity (\code{bc\_sim\_web}), where 0.50 is not a bad value; as the correlation between fitted and observed number of interactions, expressed as Spearman correlation (\code{cor\_web}), which is our key comparison criterion at 0.52; and, finally, some selected network indices were computed for the observed and repeated draws from the fitted multinomial distribution. In this case, none of the four indices includes the observed even in the 95\% confidence interval (i.e. not good).
+
+We can also have a look at the fitted model parameters:
+<<look at fit, cache=F>>=
+fit_web1
+@
+The output is a bit confusing, as it contains the fitted parameters twice: first, under \code{par\_opt} in the interpretable form, i.e. back-transformed for those parameters that were constraint (PEM 1, the standard deviations of the trait-matching function and $\delta$); then again, under \code{opt}, in their untransformed form, as spit out by \code{optim}.
+
+At least two things are interesting here:
+\begin{enumerate}
+  \item The standard deviation of the trait-matching function (the normal, in this case) for the observed traits is rather wide (at 7.6, see \code{par\_opt\$tmatch\_width\_obs}). Typically, this indicates that the traits were not fitting very well to each other and the model did not find the observed traits useful. (We have seen much worse, with values > 1000, though.)
+  \item The value of $\delta$ is (practically) 1. A value of 1 indicates that traits (observed and latent) are as important as the abundance.
+  \item Putting the two previous points together: this model hinges on the matching of the phylogenetic-informed latent traits. One reason may be that the phylogenies code up the effect of the traits, so that the trait has no remaining additional effect. Parameter \code{lambda} imposes a shrinkage to prioritise the observed trait effect over the latent traits. (Imposing some shrinkge, e.g. setting \code{lambda=0.1}, in this case reduced predictive fit to below the abundance-only model.)
+  \item The absolute values of the PEM-parameters matters little.
+\end{enumerate}
+
+With the fitted object, we can correlate the latent and the observed traits. The code is rather ugly, since we need to access data in the belly of the object:
+<<correlate observed and latent, cache=F>>=
+fitted_lin_low <- fit_web1$par_opt$lat_low[which(names(fit_web1$par_opt$lat_low) %in% 
+                              colnames(tapnet_web1$networks[[1]]$pems$low))]
+fitted_lat_low <- as.vector(scale(rowSums(matrix(fitted_lin_low, 
+                            nrow = nrow(tapnet_web1$networks[[1]]$pems$low), 
+                            ncol = ncol(tapnet_web1$networks[[1]]$pems$low), byrow = TRUE) * 
+                            tapnet_web1$networks[[1]]$pems$low)))
+cor(fitted_lat_low, tapnet_web1$networks[[1]]$traits$low)
+
+fitted_lin_high <- fit_web1$par_opt$lat_high[which(names(fit_web1$par_opt$lat_high) %in% 
+                                        colnames(tapnet_web1$networks[[1]]$pems$high))]
+fitted_lat_high <- as.vector(scale(rowSums(matrix(fitted_lin_high, 
+                              nrow = nrow(tapnet_web1$networks[[1]]$pems$high), 
+                              ncol = ncol(tapnet_web1$networks[[1]]$pems$high), byrow = TRUE) * 
+                              tapnet_web1$networks[[1]]$pems$high)))
+cor(fitted_lat_high, tapnet_web1$networks[[1]]$traits$high)
+@
+In neither case was there any correlation between latent and observed traits.
+
+Finally, we can also check for correlation between the latent trait and the (independent) abundance of the species:
+<<correlate abundance and latent, cache=F>>=
+cor(fitted_lat_low, tapnet_web1$networks[[1]]$abuns$low)
+
+cor(fitted_lat_high, tapnet_web1$networks[[1]]$abuns$high)
+@
+
+
+\section{Predict from fitted tapnet to new network}
+Fitting characteristics are all nice and fine, but how good does tapnet predict to a new network?
+
+To predict to a new network, we have to provide the tapnet fit-object and the abundances for that network. This allows for changing abundances, or indeed including or excluding species, independent from network observations. The tapnet-object itself is referenced by name in the fit, and is used to compute the phylogenetic information for the species in the new network.  
+In this case, we provide the abundances based on the \texttt{tapnet\_web2}-object we created earlier. We could however also simply make a list with the abundances of each level for the second network (see code in next section, or help page of \texttt{tapnet\_predict}).
+<<predict tapnet web2, cache=T>>=
+preds2.tapnet <- predict_tapnet(fit=fit_web1, abuns=tapnet_web2$networks[[1]]$abuns)
+cor(as.vector(preds2.tapnet), as.vector(tapnet_web2$networks[[1]]$web))
+@
+So the correlation is actually not very high! Let's visualise that. To do so, we need to multiply the predictions by the number of observed interactions, as the predictions are probabilities that sum to one. Also, since interactions are approximately log-normally distributed, we depict the fit as log-log-plot.
+<<predict tapnet web2 plot, out.width="0.5\\textwidth", cache=F>>=
+sum(tapnet_web2$networks[[1]]$web)
+par(mar=c(5,5,1,1))
+plot(preds2.tapnet*3979 + 1, tapnet_web2$networks[[1]]$web + 1, log="xy", las=1, 
+  xlab="predicted number of interactions + 1", ylab="observed number of interactions + 1")
+abline(0,1)
+@
+Finally, we can compute the multinomial log-likelihood of the data, given the prediction:
+<<cache=F>>=
+dmultinom(as.vector(tapnet_web2$networks[[1]]$web), prob=as.vector(preds2.tapnet), 
+          size=sum(tapnet_web2$networks[[1]]$web), log=T)
+@
+
+
+\section{Using multiple networks}
+In the tapnet approach, we can also fit several networks simultaneously, and use the resulting fit for prediction. For example, we can fit tapnet to the networks from shrub and cattle, and predict to (1 =) forest:
+<<fit 2 networks example, cache=T>>=
+data(Tinoco)
+tap <- make_tapnet(tree_low = plant_tree, tree_high = humm_tree, networks = networks[2:3], 
+                   traits_low = plant_traits, traits_high = humm_traits, 
+                   abun_low = plant_abun[2:3], abun_high=humm_abun[2:3] , npems_lat = 4)
+fit <- fit_tapnet(tap) # uses two networks for fitting!
+gof_tapnet(fit)
+# predict to omitted forest network:
+pred1 <- predict_tapnet(fit, abuns=list("low"=plant_abun[[1]], "high"=humm_abun[[1]] )) 
+  
+cor(as.vector(pred1*sum(networks[[1]])), as.vector(networks[[1]])) 
+@
+And we can do the same for the other two networks (first to 2 = shrubs, then to 3 = cattle):
+<<fit 2 networks example cont., echo=F>>=
+tap <- make_tapnet(tree_low = plant_tree, tree_high = humm_tree, networks = networks[c(1,3)], traits_low = plant_traits, traits_high = humm_traits, abun_low = plant_abun[c(1,3)], 
+                           abun_high=humm_abun[c(1,3)] , npems_lat = 4)
+fit <- fit_tapnet(tap) # uses two networks for fitting!
+pred1 <- predict_tapnet(fit, abuns=list("low"=plant_abun[[2]], "high"=humm_abun[[2]] )) # predict to omitted forest network
+cor(as.vector(pred1*sum(networks[[2]])), as.vector(networks[[2]])) 
+@
+<<fit 2 networks example contcont., echo=F>>=
+tap <- make_tapnet(tree_low = plant_tree, tree_high = humm_tree, networks = networks[1:2], traits_low = plant_traits, traits_high = humm_traits, abun_low = plant_abun[1:2], 
+                           abun_high=humm_abun[1:2] , npems_lat = 4)
+fit <- fit_tapnet(tap) # uses two networks for fitting!
+pred1 <- predict_tapnet(fit, abuns=list("low"=plant_abun[[3]], "high"=humm_abun[[3]] )) # predict to omitted forest network
+cor(as.vector(pred1*sum(networks[[3]])), as.vector(networks[[3]])) 
+@
+If we compare this single-network predictions (see towards the end of this document), we notice a variable effect on performance: more is not necessarily better. This will probably depend on the similarity of the habitats and hence interacting species.
+
+
+
+\section{Prediction baseline: use only abundances in the new web}
+As a baseline, we compute the information contained in the abundances. If the hummingbirds had no preferences, but only interacted strictly with probability proportional to abundance, then abundant hummingbird species would interact with high probability with abundant plant species, but with low probability with rare plant species.
+<<>>=
+preds2.abunonly <- (tapnet_web2$networks[[1]]$abuns$low / 
+    sum(tapnet_web2$networks[[1]]$abuns$low)) %*% t(tapnet_web2$networks[[1]]$abuns$high / 
+    sum(tapnet_web2$networks[[1]]$abuns$high)) * sum(tapnet_web2$networks[[1]]$web)
+cor(as.vector(preds2.abunonly), as.vector(tapnet_web2$networks[[1]]$web))
+@
+<<abunonly plot, out.width="0.5\\textwidth">>=
+par(mar=c(5,5,1,1))
+plot(preds2.abunonly + 1, tapnet_web2$networks[[1]]$web + 1, log="xy", las=1, 
+  xlab="predicted number of interactions + 1", ylab="observed number of interactions + 1")
+abline(0,1)
+@
+And the log-likelihood:
+<<>>=
+dmultinom(as.vector(tapnet_web2$networks[[1]]$web), prob=as.vector(preds2.abunonly), 
+          size=sum(tapnet_web2$networks[[1]]$web), log=T)
+@
+This means, our tapnet model is superior in prediction to the abundance-only model, indicating that the (latent and observed) traits do carry some information on the interactions. Note, however, that the prediction quality of the abundance-only is very low.
+
+
+
+\section{Preparing tapnet data as data.frame for statistical models}
+To prepare the data for a statistical model, we provide the function \code{tapnet2df}:
+<<make df from tapnet>>=
+web1.df <- tapnet2df(tapnet_web1)
+web2.df <- tapnet2df(tapnet_web2)
+head(web1.df)
+@
+These data.frames contain all the information coded in the tapnet object, but no matches of traits.
+
+
+
+\section{Prediction using GAM of phylogeny, traits and trait matching}
+To apply the approach of Brousseau et al. (2018) to our quantitative network, we use a negative binomial GAM. It uses, as predictors, the first two PEMs of each group, plus the observed traits, plus the squared trait difference, plus the abundances.
+
+We augment the data.frames from the previous section by the trait-matching variables (in this case only one pair: bill and corolla length):
+<<add traitmatch to df>>=
+web1.df.extended <- cbind.data.frame(web1.df, "match"=(web1.df$traitHBill_length_mean_mm - 
+                                                  web1.df$traitLCorolla_length_mm)^2 )
+web2.df.extended <- cbind.data.frame(web2.df, "match"=(web2.df$traitHBill_length_mean_mm - 
+                                                  web2.df$traitLCorolla_length_mm)^2 )
+@
+Now we can fit the model. Note that we believe this approach to be statistically incorrect, as it assumes that the observed interactions are independent, when (clearly?) they are not. Each bird selects a flower based on what is on offer; thus, a decision to visit one flower implies \emph{not} visiting another, creating a negative dependence. Anyway.
+<<fit GAM, message=FALSE>>=
+library(mgcv)
+gam2 <- gam(interactions ~ s(pemLV_1, pemHV_1, bs="ts", k=24) +s(pemLV_2, pemHV_3, bs="ts", 
+           k=24) + s(traitLCorolla_length_mm, k=3) + s(traitHBill_length_mean_mm, k=3) + 
+           s(match, k=3) + s(abunL, k=3) + s(abunH, k=3), data=web1.df.extended, family=nb, 
+           gamma=1.4)
+summary(gam2)
+preds2.gam <- predict(gam2, newdata=web2.df.extended)
+cor(exp(preds2.gam), web2.df$interactions)
+@
+Here, the contributions of the different predictors can easily be discerned. Abundances and trait-matching are important, but phylogenetics are (apparently) not. Note that in this case corolla length and trait matching are high ($r=0.84$) correlated, representing the same information. That could be avoided by standardising the trait values before fitting the model. However, in that case we lose the direct interpretation of 0 indicating the same length of corolla and bill.
+
+Again, we can plot the result:
+<<predict 2 gam plot, out.width="0.5\\textwidth">>=
+par(mar=c(5,5,1,1))
+plot(exp(preds2.gam) +1 , web2.df$interactions + 1, log="xy", las=1, xlab="predicted 
+     number of interactions + 1", ylab="observed number of interactions + 1")
+abline(0,1)
+@
+This prediction contains no information on the observed interactions.
+
+And the log-likelihood:
+<<cache=F>>=
+dmultinom(as.vector(tapnet_web2$networks[[1]]$web), prob=exp(preds2.gam) / 
+            sum(exp(preds2.gam)), size=sum(tapnet_web2$networks[[1]]$web), log=T)
+@
+So these values are abysmally poor.
+
+
+\section{Prediction using randomForest with phylogeny, traits and trait matching}
+We can use the same data with a different algorithm, in this case randomForest (as implemented in ranger). It provides an assessment of which predictors are important to the fit:
+<<fit ranger web1>>=
+library(ranger)
+rf2 <- ranger(interactions ~ ., data=web1.df.extended[, -c(1, 2)], importance="impurity")
+rf2
+sort(importance(rf2), decreasing=T)
+@
+
+<<plot ranger predictions web2, out.width="0.5\\textwidth">>=
+preds2.ranger <- predict(rf2, data=web2.df.extended)$predictions
+cor(preds2.ranger, web2.df$interactions)
+par(mar=c(5,5,1,1))
+plot(preds2.ranger +1 , web2.df$interactions + 1, log="xy", las=1, xlab="predicted number 
+     of interactions + 1", ylab="observed number of interactions + 1")
+abline(0,1)
+@
+
+And the log-likelihood:
+<<cache=F>>=
+dmultinom(as.vector(tapnet_web2$networks[[1]]$web), prob=preds2.ranger/sum(preds2.ranger), 
+          size=sum(tapnet_web2$networks[[1]]$web), log=T)
+@
+
+This model is better than the abundance-only, GAM -- and tapnet.
+
+
+
+\section{Cross-validation for all approaches}
+Here we only present the code and results for the cross-validation, where the model it fit to one web and predicts to the other two, for all three combinations. We use the same settings and data preparation as in the sections above.
+
+\subsection{Using tapnet}
+<<set up tapnets>>=
+tapnet_web1 <- make_tapnet(tree_low=plant_tree, tree_high=humm_tree, networks=networks[1],
+                           traits_low=plant_traits, traits_high=humm_traits, 
+                           abun_low=plant_abun[1], abun_high=humm_abun[1], npems_lat=4)
+tapnet_web2 <- make_tapnet(tree_low=plant_tree, tree_high=humm_tree, networks=networks[2],
+                           traits_low=plant_traits, traits_high=humm_traits, 
+                           abun_low=plant_abun[2], abun_high=humm_abun[2], npems_lat=4)
+tapnet_web3 <- make_tapnet(tree_low=plant_tree, tree_high=humm_tree, networks=networks[3],
+                           traits_low=plant_traits, traits_high=humm_traits, 
+                           abun_low=plant_abun[3], abun_high=humm_abun[3], npems_lat=4)
+@
+<<tapnet fits, cache=T>>=
+fit_web1 <- fit_tapnet(tapnet = tapnet_web1, method="SANN")
+fit_web2 <- fit_tapnet(tapnet = tapnet_web2, method="SANN")
+fit_web3 <- fit_tapnet(tapnet = tapnet_web3, method="SANN")
+@
+<<tapnet fit ells>>=
+-c(fit_web1$opt$value, fit_web2$opt$value, fit_web3$opt$value)
+@
+
+<<tapnet predict to others>>=
+preds2.tapnet1 <- predict_tapnet(fit=fit_web1, abuns=tapnet_web2$networks[[1]]$abuns)
+preds3.tapnet1 <- predict_tapnet(fit=fit_web1, abuns=tapnet_web3$networks[[1]]$abuns)
+preds1.tapnet2 <- predict_tapnet(fit=fit_web2, abuns=tapnet_web1$networks[[1]]$abuns)
+preds3.tapnet2 <- predict_tapnet(fit=fit_web2, abuns=tapnet_web3$networks[[1]]$abuns)
+preds1.tapnet3 <- predict_tapnet(fit=fit_web3, abuns=tapnet_web1$networks[[1]]$abuns)
+preds2.tapnet3 <- predict_tapnet(fit=fit_web3, abuns=tapnet_web2$networks[[1]]$abuns)
+@
+%#predList <- list(preds2.tapnet1, preds3.tapnet1, preds1.tapnet2, preds3.tapnet2, preds1.tapnet2, preds2.tapnet2)
+<<tapnet compute cors>>=
+cors.tapnet <- c(
+  cor(as.vector(preds2.tapnet1), as.vector(tapnet_web2$networks[[1]]$web)),
+  cor(as.vector(preds3.tapnet1), as.vector(tapnet_web3$networks[[1]]$web)),
+  cor(as.vector(preds1.tapnet2), as.vector(tapnet_web1$networks[[1]]$web)),
+  cor(as.vector(preds3.tapnet2), as.vector(tapnet_web3$networks[[1]]$web)),
+  cor(as.vector(preds1.tapnet3), as.vector(tapnet_web1$networks[[1]]$web)),
+  cor(as.vector(preds2.tapnet3), as.vector(tapnet_web2$networks[[1]]$web))
+)
+cors.tapnet
+@
+<<tapnet compute cvlogliks>>=
+ellCV.tapnet <- c(
+  dmultinom(as.vector(tapnet_web2$networks[[1]]$web), prob=as.vector(preds2.tapnet1), 
+            size=sum(tapnet_web2$networks[[1]]$web), log=T),
+  dmultinom(as.vector(tapnet_web3$networks[[1]]$web), prob=as.vector(preds3.tapnet1), 
+            size=sum(tapnet_web3$networks[[1]]$web), log=T),
+  dmultinom(as.vector(tapnet_web1$networks[[1]]$web), prob=as.vector(preds1.tapnet2), 
+            size=sum(tapnet_web1$networks[[1]]$web), log=T),
+  dmultinom(as.vector(tapnet_web3$networks[[1]]$web), prob=as.vector(preds3.tapnet2), 
+            size=sum(tapnet_web3$networks[[1]]$web), log=T),
+  dmultinom(as.vector(tapnet_web1$networks[[1]]$web), prob=as.vector(preds1.tapnet3), 
+            size=sum(tapnet_web1$networks[[1]]$web), log=T),
+  dmultinom(as.vector(tapnet_web2$networks[[1]]$web), prob=as.vector(preds2.tapnet3), 
+            size=sum(tapnet_web2$networks[[1]]$web), log=T)
+)
+ellCV.tapnet
+@
+\subsection{Fit of the baseline, abundance-only model}
+<<abunsonly fit>>=
+preds1.abunonly <- (tapnet_web1$networks[[1]]$abuns$low / 
+        sum(tapnet_web1$networks[[1]]$abuns$low)) %*% t(tapnet_web1$networks[[1]]$abuns$high / 
+        sum(tapnet_web1$networks[[1]]$abuns$high)) / sum(tapnet_web1$networks[[1]]$web)
+preds2.abunonly <- (tapnet_web2$networks[[1]]$abuns$low / 
+      sum(tapnet_web2$networks[[1]]$abuns$low)) %*% t(tapnet_web2$networks[[1]]$abuns$high / 
+      sum(tapnet_web2$networks[[1]]$abuns$high)) / sum(tapnet_web2$networks[[1]]$web)
+preds3.abunonly <- (tapnet_web3$networks[[1]]$abuns$low / 
+      sum(tapnet_web3$networks[[1]]$abuns$low)) %*% t(tapnet_web3$networks[[1]]$abuns$high / 
+      sum(tapnet_web3$networks[[1]]$abuns$high)) / sum(tapnet_web3$networks[[1]]$web)
+@
+<<abunsonly cors>>=
+cors.abun <- c(
+  cor(as.vector(preds2.abunonly), as.vector(tapnet_web2$networks[[1]]$web)),
+  cor(as.vector(preds3.abunonly), as.vector(tapnet_web3$networks[[1]]$web)),
+  cor(as.vector(preds1.abunonly), as.vector(tapnet_web1$networks[[1]]$web)),
+  cor(as.vector(preds3.abunonly), as.vector(tapnet_web3$networks[[1]]$web)),
+  cor(as.vector(preds1.abunonly), as.vector(tapnet_web1$networks[[1]]$web)),
+  cor(as.vector(preds2.abunonly), as.vector(tapnet_web2$networks[[1]]$web))
+)
+cors.abun
+@
+<<abunsonly ellCV>>=
+ellCV.abuns <- c(
+  dmultinom(as.vector(tapnet_web2$networks[[1]]$web), prob=as.vector(preds2.abunonly), 
+            size=sum(tapnet_web2$networks[[1]]$web), log=T),
+  dmultinom(as.vector(tapnet_web3$networks[[1]]$web), prob=as.vector(preds3.abunonly), 
+            size=sum(tapnet_web3$networks[[1]]$web), log=T),
+  dmultinom(as.vector(tapnet_web1$networks[[1]]$web), prob=as.vector(preds1.abunonly), 
+            size=sum(tapnet_web1$networks[[1]]$web), log=T),
+  dmultinom(as.vector(tapnet_web3$networks[[1]]$web), prob=as.vector(preds3.abunonly), 
+            size=sum(tapnet_web3$networks[[1]]$web), log=T),
+  dmultinom(as.vector(tapnet_web1$networks[[1]]$web), prob=as.vector(preds1.abunonly), 
+            size=sum(tapnet_web1$networks[[1]]$web), log=T),
+  dmultinom(as.vector(tapnet_web2$networks[[1]]$web), prob=as.vector(preds2.abunonly), 
+            size=sum(tapnet_web2$networks[[1]]$web), log=T)
+)
+ellCV.abuns
+@
+Comparing these values to the fits of the tapnet we see that they are similar, sometimes tapnet is better, sometimes abundance-only.
+
+
+\subsection{The GAM-approach}
+<<>>=
+web3.df <- tapnet2df(tapnet_web3)
+web3.df.extended <- cbind.data.frame(web3.df, "match"=(web3.df$traitHBill_length_mean_mm - 
+                                                web3.df$traitLCorolla_length_mm)^2 )
+@
+
+<<>>=
+gam1 <- gam(interactions ~ s(pemLV_1, pemHV_1, bs="ts", k=24) +
+  s(pemLV_2, pemHV_3, bs="ts", k=24) + s(traitLCorolla_length_mm, k=3) + 
+  s(traitHBill_length_mean_mm, k=3) + s(match, k=3) + s(abunL, k=3) + 
+    s(abunH, k=3), data=web1.df.extended, family=nb, gamma=1.4)
+gam2 <- gam(interactions ~ s(pemLV_1, pemHV_1, bs="ts", k=24) +
+  s(pemLV_2, pemHV_3, bs="ts", k=24) + s(traitLCorolla_length_mm, k=3) + 
+  s(traitHBill_length_mean_mm, k=3) + s(match, k=3) + s(abunL, k=3) + 
+  s(abunH, k=3), data=web2.df.extended, family=nb, gamma=1.4)
+gam3 <- gam(interactions ~ s(pemLV_1, pemHV_1, bs="ts", k=24) +
+  s(pemLV_2, pemHV_3, bs="ts", k=24) + s(traitLCorolla_length_mm, k=3) + 
+  s(traitHBill_length_mean_mm, k=3) + s(match, k=3) + s(abunL, k=3) + 
+  s(abunH, k=3), data=web3.df.extended, family=nb, gamma=1.4)
+@
+<<>>=
+preds2.gam1 <- predict(gam1, newdata=web2.df.extended, type="response")
+preds3.gam1 <- predict(gam1, newdata=web3.df.extended, type="response")
+preds1.gam2 <- predict(gam2, newdata=web1.df.extended, type="response")
+preds3.gam2 <- predict(gam2, newdata=web3.df.extended, type="response")
+preds1.gam3 <- predict(gam3, newdata=web1.df.extended, type="response")
+preds2.gam3 <- predict(gam3, newdata=web2.df.extended, type="response")
+@
+<<>>=
+cors.gam <- c(
+  cor(preds2.gam1, web2.df$interactions),
+  cor(preds3.gam1, web3.df$interactions),
+  cor(preds1.gam2, web1.df$interactions),
+  cor(preds3.gam2, web3.df$interactions),
+  cor(preds1.gam3, web1.df$interactions),
+  cor(preds2.gam3, web2.df$interactions)
+)
+@
+<<>>=
+ellCV.gam <- c(
+  dmultinom(as.vector(tapnet_web2$networks[[1]]$web), prob=preds2.gam1/sum(preds2.gam1), 
+            size=sum(tapnet_web2$networks[[1]]$web), log=T),
+  dmultinom(as.vector(tapnet_web3$networks[[1]]$web), prob=preds3.gam1/sum(preds3.gam1), 
+            size=sum(tapnet_web3$networks[[1]]$web), log=T),
+  dmultinom(as.vector(tapnet_web1$networks[[1]]$web), prob=preds1.gam2/sum(preds1.gam2), 
+            size=sum(tapnet_web1$networks[[1]]$web), log=T),
+  dmultinom(as.vector(tapnet_web3$networks[[1]]$web), prob=preds3.gam2/sum(preds3.gam2), 
+            size=sum(tapnet_web3$networks[[1]]$web), log=T),
+  dmultinom(as.vector(tapnet_web1$networks[[1]]$web), prob=preds1.gam3/sum(preds1.gam3), 
+            size=sum(tapnet_web1$networks[[1]]$web), log=T),
+  dmultinom(as.vector(tapnet_web2$networks[[1]]$web), prob=preds2.gam3/sum(preds2.gam3), 
+            size=sum(tapnet_web2$networks[[1]]$web), log=T)
+)
+@
+<<>>=
+cors.gam
+ellCV.gam
+@
+Compared to the tapnet, this GAM-approach is inferior in all instances.
+
+
+\subsection{The randomForest approach}
+Note that we now have to append the correct PEMs to the data. For the GAM, we only used the first PEM, but here the first 4 (or all)!
+<<>>=
+tapnet_web1 <- make_tapnet(tree_low=plant_tree, tree_high=humm_tree, networks=networks[1],
+              traits_low=plant_traits, traits_high=humm_traits, abun_low=plant_abun[1], 
+              abun_high=humm_abun[1], npems_lat=NULL, use.all.pems=T)
+tapnet_web2 <- make_tapnet(tree_low=plant_tree, tree_high=humm_tree, networks=networks[2],
+              traits_low=plant_traits, traits_high=humm_traits, abun_low=plant_abun[2], 
+              abun_high=humm_abun[2], npems_lat=NULL, use.all.pems=T)
+tapnet_web3 <- make_tapnet(tree_low=plant_tree, tree_high=humm_tree, networks=networks[3],
+              traits_low=plant_traits, traits_high=humm_traits, abun_low=plant_abun[3], 
+              abun_high=humm_abun[3], npems_lat=NULL, use.all.pems=T)
+@
+<<>>=
+web1.df <- tapnet2df(tapnet_web1)
+web1.df.extended <- cbind.data.frame(web1.df, "match"=(web1.df$traitHBill_length_mean_mm - 
+                                                  web1.df$traitLCorolla_length_mm)^2 )
+web2.df <- tapnet2df(tapnet_web2)
+web2.df.extended <- cbind.data.frame(web2.df, "match"=(web2.df$traitHBill_length_mean_mm - 
+                                                  web2.df$traitLCorolla_length_mm)^2 )
+web3.df <- tapnet2df(tapnet_web3)
+web3.df.extended <- cbind.data.frame(web3.df, "match"=(web3.df$traitHBill_length_mean_mm - 
+                                                  web3.df$traitLCorolla_length_mm)^2 )
+@
+
+<<>>=
+rf1 <- ranger(interactions ~ ., data=web1.df.extended[, -c(1, 2)], importance="impurity")
+rf2 <- ranger(interactions ~ ., data=web2.df.extended[, -c(1, 2)], importance="impurity")
+rf3 <- ranger(interactions ~ ., data=web3.df.extended[, -c(1, 2)], importance="impurity")
+@
+<<>>=
+head(sort(round(importance(rf1)), decreasing=T))
+head(sort(round(importance(rf2)), decreasing=T))
+head(sort(round(importance(rf3)), decreasing=T))
+@
+<<>>=
+preds2.ranger1 <- predict(rf1, data=web2.df.extended)$predictions
+preds3.ranger1 <- predict(rf1, data=web3.df.extended)$predictions
+preds1.ranger2 <- predict(rf2, data=web1.df.extended)$predictions
+preds3.ranger2 <- predict(rf2, data=web3.df.extended)$predictions
+preds1.ranger3 <- predict(rf3, data=web1.df.extended)$predictions
+preds2.ranger3 <- predict(rf3, data=web2.df.extended)$predictions
+@
+<<>>=
+cors.rf <- c(
+  cor(preds2.ranger1, web2.df$interactions),
+  cor(preds3.ranger1, web3.df$interactions),
+  cor(preds1.ranger2, web1.df$interactions),
+  cor(preds3.ranger2, web3.df$interactions),
+  cor(preds1.ranger3, web1.df$interactions),
+  cor(preds2.ranger3, web2.df$interactions)
+)
+@
+<<>>=
+ellCV.rf <- c(
+  dmultinom(as.vector(tapnet_web2$networks[[1]]$web), prob=preds2.ranger1/sum(preds2.ranger1), 
+            size=sum(tapnet_web2$networks[[1]]$web), log=T),
+  dmultinom(as.vector(tapnet_web3$networks[[1]]$web), prob=preds3.ranger1/sum(preds3.ranger1), 
+            size=sum(tapnet_web3$networks[[1]]$web), log=T),
+  dmultinom(as.vector(tapnet_web1$networks[[1]]$web), prob=preds1.ranger2/sum(preds1.ranger2), 
+            size=sum(tapnet_web1$networks[[1]]$web), log=T),
+  dmultinom(as.vector(tapnet_web3$networks[[1]]$web), prob=preds3.ranger2/sum(preds3.ranger2), 
+            size=sum(tapnet_web3$networks[[1]]$web), log=T),
+  dmultinom(as.vector(tapnet_web1$networks[[1]]$web), prob=preds1.ranger3/sum(preds1.ranger3), 
+            size=sum(tapnet_web1$networks[[1]]$web), log=T),
+  dmultinom(as.vector(tapnet_web2$networks[[1]]$web), prob=preds2.ranger3/sum(preds2.ranger3), 
+            size=sum(tapnet_web2$networks[[1]]$web), log=T)
+)
+@
+<<>>=
+cors.rf
+ellCV.rf
+@
+Compared to tapnet, the randomForest approach is consistently better in validation (correlations), but yields very poor fits in terms of log-likelihood.
+
+\subsection{Summary of cross-validation results}
+To summarise all of this, here are the \textbf{correlations}, sorted by overall prediction quality:
+<<cache=F>>=
+all.cors.res <- rbind(cors.tapnet, cors.abun, cors.rf, cors.gam)
+all.cors.res <- cbind(all.cors.res, rowMeans(all.cors.res))
+colnames(all.cors.res) <- c("1 to 2", "1 to 3", "2 to 1", "2 to 3", "3 to 1", "3 to 2", 
+                            "average")
+round(all.cors.res, 2)
+@
+And here the \textbf{log-likelihoods} on the hold-out (larger, i.e. less negative, is better):
+<<cache=F>>=
+all.ellCV.res <- rbind(ellCV.tapnet, ellCV.abuns, ellCV.rf, ellCV.gam)
+all.ellCV.res <- cbind(all.ellCV.res, rowMeans(all.ellCV.res))
+colnames(all.ellCV.res) <- colnames(all.cors.res)
+round(all.ellCV.res)
+@
+
+In summary, these results show that tapnet, abundance-only and randomForest yield very similar performance on prediction to a new network, based only on abundances. In absolute terms, these predictions are poor. Among the possible explanations for the poor prediction we think we can exclude the very skewed distribution of interaction intensities, as the data can be fit satisfactorily (by tapnet and randomForest). A more likely explanation is that bipartite networks have no representation of interactions within a group, e.g. competitive interactions among hummingbirds. As they differ in size, a larger species not occurring in forest may ``bully'' smaller birds into deviating from their feeding preferences; or very similar species may display character displacement in the presence of the other.
+
+
+\subsection{Fits}
+Just for completeness, here also the information on the goodness-of-fit for all approaches. This is an inferior measure of an approache's performance if the aim is prediction. As sometimes people want to only use an approach in an exploratory way, e.g. to identify which elements contribute to describing the data, we show the same measures as before for the fit (again sorted by quality of prediction, not by quality of fit).
+<<>>=
+fits.cors.res <- rbind(
+  "tapnet"=cbind(
+    cor(as.vector(tapnet_web1$networks[[1]]$web), as.vector(predict_tapnet(fit_web1, 
+                                           abuns=tapnet_web1$networks[[1]]$abuns))),
+    cor(as.vector(tapnet_web2$networks[[1]]$web), as.vector(predict_tapnet(fit_web2, 
+                                           abuns=tapnet_web2$networks[[1]]$abuns))),
+    cor(as.vector(tapnet_web3$networks[[1]]$web), as.vector(predict_tapnet(fit_web3, 
+                                           abuns=tapnet_web3$networks[[1]]$abuns)))
+  ),
+  "abuns"=cbind(
+        cor(as.vector(tapnet_web1$networks[[1]]$web), as.vector(preds1.abunonly)),
+        cor(as.vector(tapnet_web2$networks[[1]]$web), as.vector(preds2.abunonly)),
+        cor(as.vector(tapnet_web3$networks[[1]]$web), as.vector(preds3.abunonly))
+  ),
+  "rf"=cbind(
+    cor(predict(rf1, data=web1.df.extended)$predictions, web1.df$interactions),
+    cor(predict(rf2, data=web2.df.extended)$predictions, web2.df$interactions),
+    cor(predict(rf3, data=web3.df.extended)$predictions, web3.df$interactions)
+  ),
+  "gam"=cbind(
+    cor(predict(gam1, data=web1.df.extended, type="response"), web1.df$interactions),
+    cor(predict(gam2, data=web2.df.extended, type="response"), web2.df$interactions),
+    cor(predict(gam3, data=web3.df.extended, type="response"), web3.df$interactions)
+  )
+)
+fits.cors.res <- cbind(fits.cors.res, rowMeans(fits.cors.res))
+colnames(fits.cors.res) <- c("1 to 1", "2 to 2", "3 to 3", "average")
+round(fits.cors.res, 2)
+@
+%Note particularly that the excellent fits of randomForest translate into sound predictions.
+
+
+\section{Comparison with tapnet using marginal totals as abundances}
+Often, no information on species abundances are available or reported (e.g. in the interaction web data base). For null models, we thus typically use marginal totals as substitute for external abundances, arguing that when species abundances are not strongly dependent on the network itself, these marginal totals should be highly correlated with a species' overall abundance in that habitat.
+
+Here, we show how misleading this reasoning is for the situation of the Tinoco data. We follow the same approach as above, but now withhold the information of independent plant and pollinator abundance, and use marginal totals instead. For the test data, this leads to the weird situation that we know how often a species has been observed in an interaction, but pretend not to know with whom. (The situation would be that of two ecologists collecting the data side-by-side, with one only noting own the plants visited, but not the birds visiting them, and the other the other way around. Concieveable, but unlikely.)
+
+<<tapnet without abundances, cache=T>>=
+tapnet_web1.w <- make_tapnet(tree_low=plant_tree, tree_high=humm_tree, networks=
+              networks[1], traits_low=plant_traits, traits_high=humm_traits, npems_lat=4)
+tapnet_web2.w <- make_tapnet(tree_low=plant_tree, tree_high=humm_tree, networks=
+              networks[2], traits_low=plant_traits, traits_high=humm_traits, npems_lat=4)
+tapnet_web3.w <- make_tapnet(tree_low=plant_tree, tree_high=humm_tree, networks=
+              networks[3], traits_low=plant_traits, traits_high=humm_traits, npems_lat=4)
+@
+<<fit without abundances, cache=T>>=
+fit_web1.w <- fit_tapnet(tapnet=tapnet_web1.w)
+fit_web2.w <- fit_tapnet(tapnet=tapnet_web2.w)
+fit_web3.w <- fit_tapnet(tapnet=tapnet_web3.w)
+@
+<<predict without abundances, cache=F>>=
+preds2.tapnet1.w <- predict_tapnet(fit=fit_web1.w, abuns=tapnet_web2.w$networks[[1]]$abuns)
+preds3.tapnet1.w <- predict_tapnet(fit=fit_web1.w, abuns=tapnet_web3.w$networks[[1]]$abuns)
+preds1.tapnet2.w <- predict_tapnet(fit=fit_web2.w, abuns=tapnet_web1.w$networks[[1]]$abuns)
+preds3.tapnet2.w <- predict_tapnet(fit=fit_web2.w, abuns=tapnet_web3.w$networks[[1]]$abuns)
+preds1.tapnet3.w <- predict_tapnet(fit=fit_web3.w, abuns=tapnet_web1.w$networks[[1]]$abuns)
+preds2.tapnet3.w <- predict_tapnet(fit=fit_web3.w, abuns=tapnet_web2.w$networks[[1]]$abuns)
+@
+<<tapnet without abundances compute cors, cache=F>>=
+cors.tapnet.w <- c(
+  cor(as.vector(preds2.tapnet1.w), as.vector(tapnet_web2.w$networks[[1]]$web)),
+  cor(as.vector(preds3.tapnet1.w), as.vector(tapnet_web3.w$networks[[1]]$web)),
+  cor(as.vector(preds1.tapnet2.w), as.vector(tapnet_web1.w$networks[[1]]$web)),
+  cor(as.vector(preds3.tapnet2.w), as.vector(tapnet_web3.w$networks[[1]]$web)),
+  cor(as.vector(preds1.tapnet3.w), as.vector(tapnet_web1.w$networks[[1]]$web)),
+  cor(as.vector(preds2.tapnet3.w), as.vector(tapnet_web2.w$networks[[1]]$web))
+)
+cors.tapnet.w
+mean(cors.tapnet.w)
+@
+Please post comments, corrections or additions through \url{github.com/biometry/tapnet}.
+
+
+
+\end{document}
