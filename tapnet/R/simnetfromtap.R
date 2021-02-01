@@ -19,10 +19,6 @@
 #'
 #' @author Gita Benadi <gita.benadi@biom.uni-freiburg.de> and Carsten Dormann <carsten.dormann@biom.uni-freiburg.de>
 #'
-#' @examples
-#' \dontrun{
-#' # whatever is in here
-#' }
 #'
 #' @export
 simnetfromtap <- function(traits, # named list of trait data matrices for lower and higher trophic level

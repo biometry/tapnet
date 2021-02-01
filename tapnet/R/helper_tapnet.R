@@ -49,10 +49,6 @@
 #'
 #' @author Gita Benadi <gita.benadi@biom.uni-freiburg.de>, Carsten Dormann <carsten.dormann@biom.uni-freiburg.de> and Jochen Fründ <jochen.fruend@biom.uni-freiburg.de>
 #'
-#' @examples
-#' \dontrun{
-#' # whatever is in here
-#' }
 #'
 internalFunctions <- function(){}# just here to display the name for the help page through Roxygen correctly; grrrr
 

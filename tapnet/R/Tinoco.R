@@ -9,10 +9,18 @@
 #' @name Tinoco
 #' @aliases humm_traits humm_tree  humm_abun networks plant_tree plant_traits plant_abun
 #' @docType data
+#'
 #' @references Tinoco, B. A.; Graham, C. H.; Aguilar, J. M. & Schleuning, M. Effects of hummingbird morphology on specialization in pollination networks vary with resource availability. \emph{Oikos} \bold{126}, 52-–60
 #' 
 #' @usage data(Tinoco)
+#' 
 #' @author Boris A. Tinoco Molina \email{btinoco@uazuay.edu.ec} collected the data; Carsten F. Dormann \email{carsten.dormann@biom.uni-freiburg.de} packaged them
+#' 
+#' @examples 
+#' ls()
+#' data(Tinoco)
+#' ls() # adds seven objects!
+#' 
 #' @keywords data
 "humm_traits"
 "humm_trees"

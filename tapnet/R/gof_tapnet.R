@@ -21,7 +21,7 @@
 #' @author Gita Benadi <gita.benadi@biom.uni-freiburg.de> and Carsten Dormann <carsten.dormann@biom.uni-freiburg.de>
 #'
 #' @examples
-#' \dontrun{
+#' \donttest{
 #'   data(Tinoco)
 #'   tap <- make_tapnet(tree_low = plant_tree, tree_high = humm_tree, networks = networks[2:3], 
 #'          traits_low = plant_traits, traits_high = humm_traits, npems_lat = 4)
