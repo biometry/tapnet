@@ -109,12 +109,6 @@ They do roughly the following:
   \item{\code{refit_params}}{Simulate new networks from a fitted tapnet object, re-fit on the simulated network and output the parameter values.}
 }
 }
-\examples{
-\dontrun{
-# whatever is in here
-}
-
-}
 \references{
 Benadi et al. in prep
 }

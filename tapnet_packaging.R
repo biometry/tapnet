@@ -1,41 +1,3 @@
-
-## testtest: start with yesterdays tapnet, remove vignette, re-build and re-submit to winbuilder:
-fine!
-## changed description: no author, no maintainer, suggest only knitr, vignetteBuilder knit and utils
-fine!
-## Re-run roxygen ("document") on vignette-free package: does it screw it up?
-fine!
-## Add vignette folder, roxygenise
-!! error message about LOCK-file in deleted temp-folder (private/var/folders/...); Re-installed R, no effect
-## copied all old R and Description function from yesterday onto current folder; re-submit to winbuilder
-fine! (except for pdf compaction)
-## added --compact-vignettes=gs+qpdf to tapnet-mainline, resubmit to release
-fine! (except for PDF compaction)
-## fixed error (testtest; deleted "build" folder), build package, submitted to develop! 
-fine!
-## mainline tapnet build with devtools and uploaded to release with two text snippets added to tapnet-package (e.g. reference)
-fine!
-## same mainline/devtools to devel:
-
-  
-# ideen: 
-* utils in description?
-* LF line endings corrupted (why?)
-* roxygen screwed up
-
-## winbuilder screws up: cache issues? --> new try on old-release with devtoolsbuild; no, same problem there
-## removed vignette (in testtest) and uploaded to release: same problem
-## release: packaged with devtools --> error:
-** R
-Error in parse(outFile) : 
-  d:/temp/Rtmp0eBoln/R.INSTALL102386d2e5c71/tapnet/R/tapnet-package.R:1:1: unexpected '<'
-1: <
-  ^
-  ERROR: unable to collate and parse R files for package 'tapnet'
-## devel: packaged on ubuntu, command line: same error
-
-
-
 library(devtools)
 setwd("~/Data/aktuell/Networks/tapnet/tapnet")
 document() # process R-functions into .RD files, change namespace
@@ -83,3 +45,8 @@ str(fit)
 # wishlist:
 * add correlation method option to gof (not only Spearman)
 * add deOptim as optimiser (more robust but still fast, I hope)
+
+
+
+
+#### old testing experiences .... ####

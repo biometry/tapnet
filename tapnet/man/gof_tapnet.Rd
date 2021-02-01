@@ -36,7 +36,7 @@ Provides various measures to describe how well the tapnet model fits the data
 This is a function particularly interesting for simulated data, when the true parameters are known. In this case, GOF for fitted latent traits and so forth are computed.
 }
 \examples{
-\dontrun{
+\donttest{
   data(Tinoco)
   tap <- make_tapnet(tree_low = plant_tree, tree_high = humm_tree, networks = networks[2:3], 
          traits_low = plant_traits, traits_high = humm_traits, npems_lat = 4)

@@ -23,7 +23,7 @@ Function allows direct use of data prepared for tapnet analysis by other statist
 The fitted tapnet object contains the estimated parameters, describing how traits, abundance and phylogeny play together to produce the network(s) used for fitting. This information is now used to predict interaction probabilities for a new network. Accordingly, we need to know this new network's species abundances (an input to the function), PEMs and traits. The latter are computed based on the information contained in the tapnet object (which is linked in by attribute reference). For new species, their PEMs are computed and the network is simulated, using \code{\link{simnetfromtap}}, for the information provided.
 }
 \examples{
-\dontrun{
+\donttest{
   data(Tinoco)
   tap <- make_tapnet(tree_low = plant_tree, tree_high = humm_tree, networks = networks[1:2], 
          traits_low = plant_traits, traits_high = humm_traits, npems_lat = 4)

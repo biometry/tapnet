@@ -35,12 +35,6 @@ The workhorse function of this package, called by various other functions to con
 \details{
 Details in here!
 }
-\examples{
-\dontrun{
-# whatever is in here
-}
-
-}
 \references{
 Benadi et al. in prep
 }

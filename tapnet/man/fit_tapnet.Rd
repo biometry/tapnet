@@ -48,13 +48,13 @@ Estimates the parameters of the tapnet model by log-likelihood based on the ober
 The core function for using the tapnet approach: it fits the model to the data (= networks). Then, the estimated parameters can be used to predict to other networks (using \code{\link{predict_tapnet}}).
 }
 \examples{
-\dontrun{
+\donttest{ # takes about 35 s
  data(Tinoco)
  tap <- make_tapnet(tree_low = plant_tree, tree_high = humm_tree, networks = networks[2:3], 
         traits_low = plant_traits, traits_high = humm_traits, npems_lat = 4)
  fit <- fit_tapnet(tap) # fits to networks 2 and 3 only
- str(fit)  
-}
+ str(fit)
+}  
 
 }
 \references{
