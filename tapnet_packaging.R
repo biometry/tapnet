@@ -45,6 +45,7 @@ str(fit)
 # wishlist:
 * add correlation method option to gof (not only Spearman)
 * add deOptim as optimiser (more robust but still fast, I hope)
+* find data suitable for analysis and include in the package, e.g. https://doi.org/10.5061/dryad.nk98sf7sc (Wang et al., 2020). 
 
 
 
