@@ -121,19 +121,26 @@ param_vec2list <- function(params, # Parameter vector
   # Convert a vector of parameters (for trait matching and latent trait combinations)
   # to a named list
   par_list <- list()
-  par_list$lat_low <- params[1:n] # PEM linear combination parameters (lower level)
-  par_list$lat_low[1] <- exp(params[1]) # Force positive value
-  par_list$lat_high <- params[(n + 1):(n + m)] # PEM linear combination parameters (higher level)
-  par_list$pem_shift <- params[n + m + 1] # PEM shift
-  par_list$tmatch_width_pem <- exp(params[n + m + 2]) # PEM trait matching
+  if (n > 0 & m > 0){ # first sort out the latents:
+    par_list$lat_low <- params[1:n] # PEM linear combination parameters (lower level)
+    par_list$lat_low[1] <- exp(params[1]) # Force positive value
+    par_list$lat_high <- params[(n + 1):(n + m)] # PEM linear combination parameters (higher level)
+    par_list$pem_shift <- params[n + m + 1] # PEM shift
+    par_list$tmatch_width_pem <- exp(params[n + m + 2]) # PEM trait matching
+  }
+  
   if (fit.delta){ # if delta is to be fitted, it is the last of params
     if (length(params) > (n + m + 2)) {
       par_list$tmatch_width_obs <- exp(params[(n + m + 3):(length(params)-1)]) # observed traits matching
+    } else { # no pems but observed traits:
+      par_list$tmatch_width_obs <- exp(params[2:length(params)])
     }
     par_list$delta <- plogis(params[length(params)])
   } else { # if delta is NOT fitted, all last parameters go to traits
     if (length(params) > (n + m + 2)) {
       par_list$tmatch_width_obs <- exp(params[(n + m + 3):(length(params))]) # observed traits matching
+    } else {
+      par_list$tmatch_width_obs <- exp(params[2:length(params)])
     }
   }
   return(par_list)
@@ -154,19 +161,26 @@ loglik_tapnet <- function(params, # Parameters (a *named* vector)
   if (is.null(names(params))) stop("Parameter vector must be named!")
   
   # Convert parameter vector to a list for simnetfromtap:
-  pems_low <- lapply(networks, function(x) x$pems[[1]])
-  pems_high <- lapply(networks, function(x) x$pems[[2]])
-  npems_low <- length(unique(unlist(lapply(pems_low, colnames))))
-  npems_high <- length(unique(unlist(lapply(pems_high, colnames))))
-  parList <- param_vec2list(params, n = npems_low, m = npems_high, fit.delta=fit.delta)
+  if (tmatch_type_pem != "no"){
+    pems_low <- lapply(networks, function(x) x$pems[[1]])
+    pems_high <- lapply(networks, function(x) x$pems[[2]])
+    npems_low <- length(unique(unlist(lapply(pems_low, colnames))))
+    npems_high <- length(unique(unlist(lapply(pems_high, colnames))))
+    parList <- param_vec2list(params, n = npems_low, m = npems_high, fit.delta=fit.delta)
+  } else {
+    parList <- param_vec2list(params, n=0, m=0, fit.delta=fit.delta)
+  }
+  
   
   # Compute objective function value for each network:
   obj <- numeric(length(networks))
   for (i in 1:length(networks)) {
     paramsList <- parList
     # keep only latents that are used in the network:
-    paramsList$lat_low <- parList$lat_low[which(names(parList$lat_low) %in% colnames(networks[[i]]$pems$low))]
-    paramsList$lat_high <- parList$lat_high[which(names(parList$lat_high) %in% colnames(networks[[i]]$pems$high))]
+    if (tmatch_type_pem != "no"){
+      paramsList$lat_low <- parList$lat_low[which(names(parList$lat_low) %in% colnames(networks[[i]]$pems$low))]
+      paramsList$lat_high <- parList$lat_high[which(names(parList$lat_high) %in% colnames(networks[[i]]$pems$high))]
+    }
     I_mat <- simnetfromtap(traits = networks[[i]]$traits, abuns = networks[[i]]$abuns,
                            paramsList = paramsList, pems = networks[[i]]$pems,
                            tmatch_type_pem = tmatch_type_pem, tmatch_type_obs = tmatch_type_obs)
@@ -179,7 +193,7 @@ loglik_tapnet <- function(params, # Parameters (a *named* vector)
   }
   if (obj_function == "multinom") {
     # add LASSO shrinkage (only for linear combination parameters of PEMs, *not* for trait matching parameters):
-    sumOfAs <- sum(abs(parList[[1]])) + sum(abs(parList[[2]]))
+    sumOfAs <- if (tmatch_type_pem == "no") 0 else sum(abs(parList[[1]])) + sum(abs(parList[[2]]))
     return(-sum(obj) + lambda * sumOfAs) # note: - to use default minimisation to maximise likelihood
   } else {
     return(sum(obj)) # note: no "-", as now the objective is the difference and hence to be minimised

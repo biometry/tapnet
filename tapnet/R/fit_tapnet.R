@@ -54,21 +54,27 @@ fit_tapnet <- function(tapnet, # a tapnet object
     stop("This is no tapnet object! Please use function make_tapnet or simulate_tapnet to create one.")
   }
   
+  # if (tapnet$trees$low) ... # check whether a PEM-fit is asked for but no phylogeny is provided; if so, ask user to set tmatch_type_pem to "no" to ignore this information
+  
   # Check length of initial values vector, create the vector if it hasn't been supplied
   pems_low <- lapply(tapnet$networks, function(x) x$pems[[1]])
   pems_high <- lapply(tapnet$networks, function(x) x$pems[[2]])
   pem_names_low <- unique(unlist(lapply(pems_low, colnames)))
-  pem_names_low <- pem_names_low[order(nchar(pem_names_low), pem_names_low)]
+  if (!is.null(pem_names_low)) pem_names_low <- pem_names_low[order(nchar(pem_names_low), pem_names_low)]
   pem_names_high <- unique(unlist(lapply(pems_high, colnames)))
-  pem_names_high <- pem_names_high[order(nchar(pem_names_high), pem_names_high)]
+  if (!is.null(pem_names_high)) pem_names_high <- pem_names_high[order(nchar(pem_names_high), pem_names_high)]
   
   if (is.null(tapnet$traits_all$low)) ntraits <- 0 else ntraits <- ncol(tapnet$traits_all$low)
   
-  nparams <- length(pem_names_low) + length(pem_names_high) + 2 + ntraits + 1 # number of parameters to be fitted:
-  # linear combination parameters for lower and higher level (as many as PEMs), one PEM shift parameter,
-  # one PEM trait matching parameter, as many additional trait matching parameters as observed traits,
-  # one abundance-weighting parameter (delta)
-  if (is.null(ini)) {
+  if (tmatch_type_pem =="no"){
+    nparams <- 1 + ntraits + 1 # number of parameters to be fitted; one less without PEMs (the pem-shift parameter)
+  } else {
+    nparams <- length(pem_names_low) + length(pem_names_high) + 2 + ntraits + 1 # number of parameters to be fitted:
+    # linear combination parameters for lower and higher level (as many as PEMs), one PEM shift parameter,
+    # one PEM trait matching parameter, as many additional trait matching parameters as observed traits,
+    # one abundance-weighting parameter (delta)
+  }
+  if (is.null(ini)) { # define here the default starting values for the optimiser!
     if (tmatch_type_obs == "normal") ini <- c(0, rep(1, nparams-1) ) # runif(nparams) # 1st parameter will be exponentiated
     if (tmatch_type_obs == "shiftlnorm") ini <- c(.1, rep(0.1, nparams-1) ) # runif(nparams)
     ini[length(ini)] <- 0 # approx. 0.5 = plogis(0) as value for delta
@@ -76,13 +82,20 @@ fit_tapnet <- function(tapnet, # a tapnet object
     if (length(ini) != nparams) stop("Number of initial values must equal number of parameters to be fitted!") # with delta!
   }
   
-  if (is.null(tapnet$traits_all$low)) {
-    names(ini) <- c(pem_names_low, pem_names_high, "pem_shift", "tmatch_width_pem", "delta")
+  if (tmatch_type_pem == "no"){
+    if (is.null(tapnet$traits_all$low)) {
+      names(ini) <- c("tmatch_width_pem", "delta")
+    } else {
+      names(ini) <- c("tmatch_width_pem", paste0("tmatch_width_obs", 1:ncol(tapnet$traits_all$low)), "delta")
+    }  
   } else {
-    names(ini) <- c(pem_names_low, pem_names_high, "pem_shift", "tmatch_width_pem",
+    if (is.null(tapnet$traits_all$low)) {
+      names(ini) <- c(pem_names_low, pem_names_high, "pem_shift", "tmatch_width_pem", "delta")
+    } else {
+      names(ini) <- c(pem_names_low, pem_names_high, "pem_shift", "tmatch_width_pem",
                     paste0("tmatch_width_obs", 1:ncol(tapnet$traits_all$low)), "delta")
+    }
   }
-  
   if (!fit.delta) ini <- ini[-which(names(ini) == "delta")]
   #test:
   # loglik_tapnet(ini, networks = tapnet$networks, tmatch_type_pem = tmatch_type_pem, tmatch_type_obs = tmatch_type_obs, lambda = lambda, fit.delta=F)
@@ -91,7 +104,7 @@ fit_tapnet <- function(tapnet, # a tapnet object
   opt <- optim(par = ini, fn = loglik_tapnet, networks = tapnet$networks,
                tmatch_type_pem = tmatch_type_pem, tmatch_type_obs = tmatch_type_obs, lambda = lambda, fit.delta=fit.delta,
                control = list(maxit = maxit), method = method, hessian = hessian, obj_function = obj_function)
-  
+
   # Convert optimized parameter vector to a named list 
   par_opt <- param_vec2list(opt$par, n = length(pem_names_low), m = length(pem_names_high), fit.delta=fit.delta)
   if (!fit.delta) par_opt[["delta"]] <- c("delta constant"=1)

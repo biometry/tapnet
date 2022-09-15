@@ -37,11 +37,11 @@ make_tapnet <- function(tree_low, # phylogenetic tree of lower trophic level (re
                         traits_low = NULL, # lower trophic level traits (species x traits matrix with row and column names, optional)
                         traits_high = NULL, # higher trophic level traits (species x traits matrix with row and column names, optional)
                         npems_lat = NULL, # Number of phylogenetic eigenvectors to be used to construct latent traits. If NULL, all eigenvectors will be used.
-                        use.all.pems=FALSE
+                        use.all.pems=FALSE # sort through phylogenetic eigenvectors and use only those relevant for this network (see helper function select_relevant_pems).
 ) {
   # Construct an object of class "tapnet" from the supplied data
   
-  # TODO: Maybe modify the function so it always performs all checks, collects messages
+  # TODO: Maybe modify the function so it always performs all checks, collect messages
   # about problems and only then stops and outputs all error messages.
   
   # Check the input:
@@ -154,16 +154,22 @@ make_tapnet <- function(tree_low, # phylogenetic tree of lower trophic level (re
       pems_web_high <- pems_from_tree(tree_high)
     }
     pems_web_high <- pems_web_high[order(rownames(pems_web_high)),] # sort species alphabetically
-    if (!is.null(npems_lat)) {
-      if (npems_lat > ncol(pems_web_low)) {
-        warning(paste("For web no.", i, ", only",  ncol(pems_web_low) , "PEMs will be used for the lower trophic level latent trait,\n since this network only has", nrow(webs[[i]]$web), "lower trophic level species."))
-      } else {
-        pems_web_low <- pems_web_low[, 1:npems_lat, drop = F]
-      }
-      if (npems_lat > ncol(pems_web_high)) {
-        warning(paste("For web no.", i, ", only",  ncol(pems_web_high) , "PEMs will be used for the higher trophic level latent trait,\n since this network only has", ncol(webs[[i]]$web), "higher trophic level species."))
-      } else {
-        pems_web_high <- pems_web_high[, 1:npems_lat, drop = F]
+    if (npems_lat == 0){ # use any PEM?
+      warning("No phylogenetic information will be used (otherwise change option 'npems_lat').")
+      pems_web_low <- NA
+      pems_web_high <- NA
+    } else {
+        if (!is.null(npems_lat)) { # use stated PEMs
+        if (npems_lat > ncol(pems_web_low)) {
+          warning(paste("For web no.", i, ", only",  ncol(pems_web_low) , "PEMs will be used for the lower trophic level latent trait,\n since this network only has", nrow(webs[[i]]$web), "lower trophic level species."))
+        } else {
+          pems_web_low <- pems_web_low[, 1:npems_lat, drop = F]
+        }
+        if (npems_lat > ncol(pems_web_high)) {
+          warning(paste("For web no.", i, ", only",  ncol(pems_web_high) , "PEMs will be used for the higher trophic level latent trait,\n since this network only has", ncol(webs[[i]]$web), "higher trophic level species."))
+        } else {
+          pems_web_high <- pems_web_high[, 1:npems_lat, drop = F]
+        }
       }
     }
     webs[[i]]$pems <- list(low = pems_web_low, high = pems_web_high)

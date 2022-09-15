@@ -10,7 +10,7 @@
 #' @param abuns  a named ("low"/"high") list of species-named abundance vectors for lower and higher trophic level;
 #' @param paramsList a list of parameter values with six elements: [[1]] and [[2]]: two vectors of linear combination parameters (importance values, one vector for each trophic level); [[3]]: a single shift parameter added to linear combination of higher trophic level PEMs; [[4]]: a single trait matching parameter for the PEMs; [[5]]: a vector of trait matching parameters for observed traits; [[6]]: a non-negative scalar delta to weight the importance of abundances 
 #' @param pems  a named ("low"/"high") list of two species-named data frames (PEMs of lower and higher trophic level);
-#' @param tmatch_type_pem type of trait matching function for latent traits (any name accepted by \code{\link{tmatch}}, currently "normal" and "shiftlnorm");
+#' @param tmatch_type_pem type of trait matching function for latent traits (any name accepted by \code{\link{tmatch}}, currently "normal", "shiftlnorm" and "no"); "no" means no PEMs are matched;
 #' @param tmatch_type_obs  type of trait matching function for observed traits (see previous argument).
 #' 
 #' @return A named interaction matrix.
@@ -43,8 +43,20 @@ simnetfromtap <- function(traits, # named list of trait data matrices for lower 
   abuns$low <- abuns$low[order(names(abuns$low))]
   abuns$high <- abuns$high[order(names(abuns$high))]
   
-  pems$low <- pems$low[order(rownames(pems$low)), , drop=FALSE]
-  pems$high <- pems$high[order(rownames(pems$high)), , drop=FALSE]
+  if (tmatch_type_pem == "no"){
+    pems$low <- pems$high <- NA
+  } else {
+    pems$low <- pems$low[order(rownames(pems$low)), , drop=FALSE]
+    pems$high <- pems$high[order(rownames(pems$high)), , drop=FALSE]
+  }
+  
+  # 0. Interaction probabilities based on abundances:
+  A_mat <- as.matrix(abuns$low) %*% t(abuns$high)
+  A_mat <- A_mat / sum(A_mat) # scale to sum of 1
+  
+  # sort A_mat:
+  #	A_mat <- A_mat[order(rownames(A_mat)), order(colnames(A_mat))]
+  
   
   # 1. Matching of observed traits
   if (is.null(traits$high) | is.null(traits$low)){
@@ -53,7 +65,7 @@ simnetfromtap <- function(traits, # named list of trait data matrices for lower 
     T_mat <- T_mat / sum(T_mat)
   } else {
     T_mat <- tmatch(t(outer(traits$high[, 1], traits$low[, 1], "-")), type = tmatch_type_obs[1],
-                    width = paramsList[[5]][1])
+                    width = paramsList[["tmatch_width_obs"]][1])
     rownames(T_mat) <- rownames(traits$low)
     colnames(T_mat) <- rownames(traits$high)
     T_mat <- T_mat / sum(T_mat)
@@ -71,29 +83,39 @@ simnetfromtap <- function(traits, # named list of trait data matrices for lower 
     }
   }
   
-  # 2. Compute linear combinations of PEMs:
-  nspec_low <- length(abuns$low)
-  nspec_high <- length(abuns$high)
-  a_mat_low <- matrix(rep(paramsList[[1]], nspec_low), nrow = nspec_low, byrow = TRUE)
-  a_mat_high <- matrix(rep(paramsList[[2]], nspec_high), nrow = nspec_high, byrow = TRUE)
-  lat_low <- as.vector(scale(rowSums(a_mat_low * pems[[1]])))
-  lat_high <- as.vector(scale(rowSums(a_mat_high * pems[[2]]))) + paramsList[[3]] # Apply shift to higher trophic level
+  if (tmatch_type_pem != "no"){ # don't fit PEMs
+    
+    # 2. Compute linear combinations of PEMs:
+    nspec_low <- length(abuns$low)
+    nspec_high <- length(abuns$high)
+    a_mat_low <- matrix(rep(paramsList[[1]], nspec_low), nrow = nspec_low, byrow = TRUE)
+    a_mat_high <- matrix(rep(paramsList[[2]], nspec_high), nrow = nspec_high, byrow = TRUE)
+    lat_low <- as.vector(scale(rowSums(a_mat_low * pems[[1]])))
+    lat_high <- as.vector(scale(rowSums(a_mat_high * pems[[2]]))) + paramsList[[3]] # Apply shift to higher trophic level
   
-  # Compute interaction probabilities based on linear combinations:
-  L_mat <- tmatch(t(outer(lat_high, lat_low, "-")), type = tmatch_type_pem, width = paramsList[[4]])
-  rownames(L_mat) <- rownames(pems[[1]])
-  colnames(L_mat) <- rownames(pems[[2]])
-  L_mat <- L_mat / sum(L_mat) # scale to sum of 1
-  
-  # Interaction probabilities based on abundances:
-  A_mat <- as.matrix(abuns$low) %*% t(abuns$high)
-  A_mat <- A_mat / sum(A_mat) # scale to sum of 1
-  
-  # sort A_mat:
-  #	A_mat <- A_mat[order(rownames(A_mat)), order(colnames(A_mat))]
+    # Compute interaction probabilities based on linear combinations:
+    L_mat <- tmatch(t(outer(lat_high, lat_low, "-")), type = tmatch_type_pem, width = paramsList[[4]])
+    rownames(L_mat) <- rownames(pems[[1]])
+    colnames(L_mat) <- rownames(pems[[2]])
+    L_mat <- L_mat / sum(L_mat) # scale to sum of 1
+  } else {
+    L_mat <- matrix(1, ncol=ncol(A_mat), nrow=nrow(A_mat)) / prod(dim(A_mat)) # standardised to sum to 1
+  }
   
   # T_mat <- T_mat / sum(T_mat)
   # note that T_mat is not scaled, allowing the optimiser to adjust balance between TRUE and L!
+  
+  
+  # Problem: When standardising the L and T matrix, the resulting function has no optimum anymore (because it divides by 1/s^2, thereby turning the normal distribution into a linear function).
+  # Solution: Don't standardise.
+  
+  # Problem: How to combine L and T, so that when one entry, say L_1,1 is 0 it does not kill T_1,1 which may be very high? In other words: if the observed trait predicts a very high P of interaction, but the latent does not, it currently multiplies them up and yields an overall low P. Thereby it effectively leads to a correlation in the optimised T and L.
+  # Solution: Compute LT as cell-wise maximum of L and T. Thereby each interaction is predicted as EITHER driven by observed OR latent trait matching (or neither). Return standardised A * max(L, T) as I.mat. 
+  # Alternatively, use LT <- L + T.
+  
+  # Problem: What if only abundance was important: estimates for T and L are now meaningless, and estimates of sigma should go towards infinity.
+  # Solution: Shrinkage. Regularise all linear combination parameters, but not sigmas. That is: minimise -logLik + lambda*sum(parameters), with lambda around 0.01 or so.
+  
   
   if (is.null(paramsList[["delta"]])) {
     LT <- (L_mat * T_mat) / sum(L_mat * T_mat)
@@ -105,7 +127,7 @@ simnetfromtap <- function(traits, # named list of trait data matrices for lower 
   }
   
   # Put everything together:
-  I_mat <- A_mat * LT #L_mat * T_mat # c allows adjustment of importance of abundances
+  I_mat <- A_mat * LT #L_mat * T_mat # delta allows adjustment of importance of abundances
   I_mat <- I_mat / sum(I_mat)  # scaling the matrix to a sum of 1
   
   return(I_mat)
