@@ -22,7 +22,7 @@ simnetfromtap(
 
 \item{pems}{a named ("low"/"high") list of two species-named data frames (PEMs of lower and higher trophic level);}
 
-\item{tmatch_type_pem}{type of trait matching function for latent traits (any name accepted by \code{\link{tmatch}}, currently "normal" and "shiftlnorm");}
+\item{tmatch_type_pem}{type of trait matching function for latent traits (any name accepted by \code{\link{tmatch}}, currently "normal", "shiftlnorm" and "no"); "no" means no PEMs are matched;}
 
 \item{tmatch_type_obs}{type of trait matching function for observed traits (see previous argument).}
 }

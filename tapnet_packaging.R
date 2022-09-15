@@ -13,7 +13,7 @@ devtools::check("tapnet", args="--as-cran")
 ## Using winbuilder (https://win-builder.r-project.org/upload.aspx) to check before submission, I repeatedly get funny problems when using the devtools-developed package. I suspect that some funny temporary file is involved, as the local errors point to var/local/cc/temp...
 ## Command line building works (mostly) fine.
 R CMD build tapnet --compact-vignettes=gs+qpdf
-R CMD check tapnet_0.3.tar.gz --as-cran
+R CMD check tapnet_0.4.tar.gz --as-cran
 
 # %%%%%%%%%%%%%%%%%%%%%%%%%     %%%%%%%%%%%%%%%%%%%%%%%%%      %%%%%%%%%%%%%%%%%%%%%%%%%     %%%%%%%%%%%%%%%%%%%%%%%%%
 # %%%%%%%%%%%%%%%%%%%%%%%%%     %%%%%%%%%%%%%%%%%%%%%%%%%      %%%%%%%%%%%%%%%%%%%%%%%%%     %%%%%%%%%%%%%%%%%%%%%%%%%
