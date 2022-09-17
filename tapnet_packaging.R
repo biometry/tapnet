@@ -6,7 +6,7 @@ document() # process R-functions into .RD files, change namespace
 ## Starting from here, the performance seems to vary:
 setwd("..")
 build("tapnet", args="--compact-vignettes=gs+qpdf", binary=F) 
-#install("tapnet") # install on the computer
+install("tapnet") # install on the computer
 devtools::check("tapnet", args="--as-cran")
 # I don't get why it returns a warning about compactable PDF: it IS compacted and there is nothing anyone can do about this in the build!
 
@@ -40,8 +40,22 @@ system.time(fit <- fit_tapnet(tap, hessian=T, method="Nelder")) # fits to networ
 str(fit) 
 (diag(solve(fit$opt$hessian)))
 
+# test bjornloglik:
+set.seed(2)
+M <- matrix(rpois(80*100, 1), 80, 100)
+P <- M/sum(M)
+l <- sample.int(ncol(M)) # aims to test whether permutating entries makes difference to loglik (no!)
+bjornloglik(M[,l], P[,l])
 
-# wishlist:
+# test loglik_tapnet
+fit_tapnet(tap, fit.delta=F, hessian=T) 
+fit_tapnet(tap, fit.delta=F, obj_function="least squares", hessian=T) 
+fit_tapnet(tap, fit.delta=F, obj_function="bjorn", hessian=T)
+# all three yield rather different estimates; hessians look fine (for fitted parameters)
+fit_tapnet(tap, fit.delta=F, obj_function="bjorn", hessian=T, tmatch_type_pem = "otto")  # should step with specific error message: works!
+
+
+#### wishlist: ####
 * add correlation method option to gof (not only Spearman)
 * add deOptim as optimiser (more robust but still fast, I hope)
 * find data suitable for analysis and include in the package, e.g. https://doi.org/10.5061/dryad.nk98sf7sc (Wang et al., 2020). 
@@ -57,7 +71,7 @@ fit_tapnet -> optim -> logLik -> simnetfromtap
 #### run without PEMs ####
 library(tapnet)
 data(Tinoco)
-tap <- make_tapnet(tree_low = plant_tree, tree_high = humm_tree, networks = networks[3], traits_low = plant_traits, traits_high = humm_traits, abun_low=plant_abun[3], abun_high=humm_abun[3], npems_lat = 0)
+tap <- make_tapnet(tree_low = plant_tree, tree_high = humm_tree, networks = networks[3], traits_low = plant_traits, traits_high = humm_traits, abun_low=plant_abun[3], abun_high=humm_abun[3], npems_lat = 1)
 # fit <- fit_tapnet(tap, fit.delta=F) # fits on network 1, only if npems_lat > 0!!
 #fit <- fit_tapnet(tap, fit.delta=F, lambda=1) # fits on network 1
 source("tapnet/R/helper_tapnet.R")
@@ -69,7 +83,7 @@ fit <- fit_tapnet(tap, fit.delta=F, tmatch_type_pem = "no") # fits on network 1,
 fit
 
 
-tapnet=tap; fit.delta=F; lambda=0; tmatch_type_pem="no"; ini = NULL; tmatch_type_obs = "normal"# for fit_tapnet
+tapnet=tap; fit.delta=F; lambda=0; tmatch_type_pem="normal"; ini = NULL; tmatch_type_obs = "normal"# for fit_tapnet
 # now go through fit_tapnet up to line 92 (before optim) to produce all variables for use in simnetfromtap
 networks <- tap$networks
 # now everything is set up to run the loglik for different values of sigma (see below)!

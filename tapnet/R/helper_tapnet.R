@@ -4,6 +4,7 @@
 #'
 #' They do roughly the following: 
 #' \describe{
+#'   \item{\code{bjornloglik}}{computes likelihood of obtaining the observed interaction matrix, given some expected matrix of interaction propabilities (P). In contrast to the multinomial, this function assumes that the marginal totals of P constrain the probabilities. Hence, if all observations for one column (or row) have been evaluated for their probabilities, any new observation cannot come from this column (or row) anymore. This means, the probabilities in that "depleted" column (or row) have to be proportionally distributed over the other rows (or columns). There are ongoing discussions among the authors, when this is the right approach. Function written by Björn Reineking, ISRAE Grenoble (many thanks!), hence the name.}
 #'   \item{\code{pems_from_tree}}{computes phylogenetic eigenvectors from a phylogenetic tree;}
 #'   \item{\code{select_relevant_pems}}{identifies those phylogenetic eigenvectors (PEMs) of the full tree most relevant for a network containing only a subset of species;}
 #'   \item{\code{tmatch}}{calculates interaction probabilities based on trait matching;}
@@ -32,9 +33,10 @@
 #' @param tmatch_type_pem type of trait matching function for latent traits;
 #' @param tmatch_type_obs type(s) of trait matching functions for observed traits; can be a vector as long as there are traits;
 #' @param lambda LASSO shrinkage parameter to avoid collinearity issues when observed traits are phylogenetically correlated;
-#' @param obj_function objective function, either "multinom" or anything else (currently anything else leads to OLS fitting);
+#' @param obj_function objective function, either "multinom" or "least squares" (leads to OLS fitting) or "bjorn" (leading to use of a somewhat weird but in some opinion the correct way to compute the likelihood);
 #' @param true_pars parameters used for simulating the network;
 #' @param fitted_pars parameters estimated by \code{\link{fit_tapnet}};
+#' @param P matrix of same size as observed web, summing to 1, representing something like the probability of selecting a link; typically constructed as part of tapnet, i.e. the I-mat of fit_tapnet;
 #' @param pems_low phylogenetic eigenvectors for the lower trophic level;
 #' @param pems_high phylogenetic eigenvectors for the higher trophic level;
 #' @param web data for an interaction network in vector form, e.g. from predict_tapnet;
@@ -51,6 +53,43 @@
 #'
 #'
 internalFunctions <- function(){}# just here to display the name for the help page through Roxygen correctly; grrrr
+
+#' @rdname internalFunctions
+bjornloglik <- function(web, P) {
+  # Calculates likelihood of observed interactions in interaction matrix M
+  # given expected probabilities P.
+  # 
+  # web: interaction matrix
+  # P: probability matrix of the same dimensions as M
+  
+  if(any(dim(web) != dim(P))) stop("Dimensions of M and P do not match.")
+  if(sum(P) != 1) {
+    warning("P does not sum to 1. Will be normalised.")
+    P <- P/sum(P, na.rm=TRUE)
+  }
+  loglik <- 0
+  R <- rowSums(web)
+  C <- colSums(web)
+  for(i in 1:NROW(web)) {
+    for(j in 1:NCOL(web)) {
+      k <- web[i, j]
+      if (k > 0) {
+        loglik <- loglik + k * log(P[i, j])
+        R[i] <- R[i] - k
+        C[j] <- C[j] - k
+        if(R[i] == 0) {
+          r <- P[i,]
+          c <- P[,j]
+          P <- sweep(P, 2, 1-r, "/") # renormalise probabilities to account for "lost" interactions
+          if(C[j] == 0) {
+            P <- sweep(P, 1, 1-c, "/")
+          }
+        }
+      }
+    }
+  }
+  loglik
+}
 
 #' @rdname internalFunctions
 pems_from_tree <- function(tree) {
@@ -102,6 +141,9 @@ tmatch <- function(delta_t, # Vector of pairwise trait differences (higher - low
                    err = 1E-5 # "baseline" probability of match, even if traits do not match at all
 ){# Calculate interaction probabilities based on trait matching
   # shift
+  
+  if (!(type %in% c("normal", "shiftlnormal"))) stop("Please use 'normal' or 'shiftlnorm' [in tmatch].")
+  
   delta_t <- delta_t + shift
   
   # lognormal distribution with mode shifted to zero:
@@ -152,7 +194,7 @@ loglik_tapnet <- function(params, # Parameters (a *named* vector)
                           tmatch_type_pem, # Type of trait matching function for latent traits
                           tmatch_type_obs, # Type(s) of trait matching functions for observed traits
                           lambda=0, # LASSO shrinkage parameter
-                          obj_function = "multinom", # Objective function:
+                          obj_function = "multinom",  # Objective function: "least squares", "bjorn"
                           fit.delta=TRUE # either "multinom" (negative log-likelihood based on a multinomial distribution) or
                           # "sq_diff" (sum of squared differences between observed and predicted log(interactions + 1))
 ) {
@@ -187,17 +229,27 @@ loglik_tapnet <- function(params, # Parameters (a *named* vector)
     if (obj_function == "multinom") {
       obj[i] <- dmultinom(as.vector(networks[[i]]$web), size = sum(networks[[i]]$web),
                           prob = as.vector(I_mat), log = TRUE)
-    } else { # least squares:
+    } 
+    
+    if (obj_function == "least squares"){ # least squares:
       obj[i] <- sum((log(as.vector(networks[[i]]$web) + 1) - log(as.vector(I_mat) * sum(networks[[i]]$web) + 1))^2)
     }
-  }
+    
+    if (obj_function == "bjorn"){
+      obj[i] <- suppressWarnings(-bjornloglik(web=networks[[i]]$web, P=I_mat))
+    }
+    
+  } # end for loop
+  
   if (obj_function == "multinom") {
     # add LASSO shrinkage (only for linear combination parameters of PEMs, *not* for trait matching parameters):
     sumOfAs <- if (tmatch_type_pem == "no") 0 else sum(abs(parList[[1]])) + sum(abs(parList[[2]]))
-    return(-sum(obj) + lambda * sumOfAs) # note: - to use default minimisation to maximise likelihood
-  } else {
-    return(sum(obj)) # note: no "-", as now the objective is the difference and hence to be minimised
-  }
+    out <- -sum(obj) + lambda * sumOfAs # note: - to use default minimisation to maximise likelihood
+  } 
+  
+  if (obj_function == "least squares" | obj_function == "bjorn") out <- sum(obj) # note: no "-", as now the objective is the difference and hence to be minimised
+  
+  return(out)
 }
 
 

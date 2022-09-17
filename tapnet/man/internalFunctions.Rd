@@ -12,9 +12,12 @@
 \alias{latent_cor}
 \alias{web_indices}
 \alias{refit_params}
+\alias{bjornloglik}
 \title{Helper functions for tapnet}
 \usage{
 internalFunctions()
+
+bjornloglik(web, P)
 
 pems_from_tree(tree)
 
@@ -41,6 +44,10 @@ web_indices(web, web_dim, indices)
 refit_params(tapnet, fit, fitted_I_mat)
 }
 \arguments{
+\item{web}{data for an interaction network in vector form, e.g. from predict_tapnet;}
+
+\item{P}{matrix of same size as observed web, summing to 1, representing something like the probability of selecting a link; typically constructed as part of tapnet, i.e. the I-mat of fit_tapnet;}
+
 \item{tree}{phylogenetic tree in phylo format;}
 
 \item{species}{a named vector of species, representing (some of) the tips of the phylogenetic tree;}
@@ -71,7 +78,7 @@ refit_params(tapnet, fit, fitted_I_mat)
 
 \item{lambda}{LASSO shrinkage parameter to avoid collinearity issues when observed traits are phylogenetically correlated;}
 
-\item{obj_function}{objective function, either "multinom" or anything else (currently anything else leads to OLS fitting);}
+\item{obj_function}{objective function, either "multinom" or "least squares" (leads to OLS fitting) or "bjorn" (leading to use of a somewhat weird but in some opinion the correct way to compute the likelihood);}
 
 \item{true_pars}{parameters used for simulating the network;}
 
@@ -80,8 +87,6 @@ refit_params(tapnet, fit, fitted_I_mat)
 \item{pems_low}{phylogenetic eigenvectors for the lower trophic level;}
 
 \item{pems_high}{phylogenetic eigenvectors for the higher trophic level;}
-
-\item{web}{data for an interaction network in vector form, e.g. from predict_tapnet;}
 
 \item{web_dim}{vector of two numbers indicating the rows and column of the network matrix;}
 
@@ -99,6 +104,7 @@ Lower-level, non-exported functions to be called by the main tapnet functions
 \details{
 They do roughly the following: 
 \describe{
+  \item{\code{bjornloglik}}{computes likelihood of obtaining the observed interaction matrix, given some expected matrix of interaction propabilities (P). In contrast to the multinomial, this function assumes that the marginal totals of P constrain the probabilities. Hence, if all observations for one column (or row) have been evaluated for their probabilities, any new observation cannot come from this column (or row) anymore. This means, the probabilities in that "depleted" column (or row) have to be proportionally distributed over the other rows (or columns). There are ongoing discussions among the authors, when this is the right approach. Function written by Björn Reineking, ISRAE Grenoble (many thanks!), hence the name.}
   \item{\code{pems_from_tree}}{computes phylogenetic eigenvectors from a phylogenetic tree;}
   \item{\code{select_relevant_pems}}{identifies those phylogenetic eigenvectors (PEMs) of the full tree most relevant for a network containing only a subset of species;}
   \item{\code{tmatch}}{calculates interaction probabilities based on trait matching;}
