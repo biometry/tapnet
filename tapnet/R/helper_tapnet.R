@@ -5,6 +5,7 @@
 #' They do roughly the following: 
 #' \describe{
 #'   \item{\code{bjornloglik}}{computes likelihood of obtaining the observed interaction matrix, given some expected matrix of interaction propabilities (P). In contrast to the multinomial, this function assumes that the marginal totals of P constrain the probabilities. Hence, if all observations for one column (or row) have been evaluated for their probabilities, any new observation cannot come from this column (or row) anymore. This means, the probabilities in that "depleted" column (or row) have to be proportionally distributed over the other rows (or columns). There are ongoing discussions among the authors, when this is the right approach. Function written by Björn Reineking, ISRAE Grenoble (many thanks!), hence the name.}
+#'   \item{\code{fit_abund}}{computes expected P-matrix of observed interactions based only on abundances; if no external abundances are provided in the tapnet-object, it will use the marginal totals of the network(s) instead.}
 #'   \item{\code{pems_from_tree}}{computes phylogenetic eigenvectors from a phylogenetic tree;}
 #'   \item{\code{select_relevant_pems}}{identifies those phylogenetic eigenvectors (PEMs) of the full tree most relevant for a network containing only a subset of species;}
 #'   \item{\code{tmatch}}{calculates interaction probabilities based on trait matching;}
@@ -90,6 +91,30 @@ bjornloglik <- function(web, P) {
   }
   loglik
 }
+
+#' @rdname internalFunctions
+fit_abund <- function(tapnet){
+  # outputs P-matrix based only abundances
+  Nwebs <- length(tapnet$networks)
+  Ps <- list(1:Nwebs)
+  for (i in 1:Nwebs){ # loop through all networks
+    
+    if (is.null(tapnet$networks[[i]]$abuns)){
+      warning("Tapnet object contains no external abundances; will use matrix marginal totals instead.")
+      theweb <- tapnet$networks[[i]]$web
+      abundances <- list(rowSums(theweb), colSums(theweb))
+    } else{
+      abundances <- tapnet$networks[[i]]$abuns
+    }
+    # A <- tcrossprod(abundances[[1]], abundances[[2]]) # removes names
+    A <- abundances[[1]] %*% t(abundances[[2]]) # partially keeps names
+    rownames(A) <- names(abundances[[1]])
+    Ps[[i]] <- A/sum(A)
+  }
+  return(Ps)
+}
+#fit_abund(tapnet_web1)
+
 
 #' @rdname internalFunctions
 pems_from_tree <- function(tree) {
