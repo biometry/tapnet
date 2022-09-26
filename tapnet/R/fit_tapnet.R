@@ -15,7 +15,7 @@
 #' @param maxit Maximum number of steps for optimization;
 #' @param hessian logical: output hessian for calculation of standard errors?
 #' @param obj_function Objective function for the optimization, either "multinom" or "sq_diff";
-#' @param fit.delta logical; should the parameter delta be fitted? It allows tapnet to down-weigh the importance of trait matching relative to abundances.
+#' @param fit.delta logical; should the parameter delta be fitted? It allows tapnet to down-weigh the importance of trait matching relative to abundances. Defaults to FALSE.
 #' 
 #' @return A tapnet-fit object, containing the tapnet model parameters as entries "par_opt", the settings of the tmatch_type for PEMs and observed traits, the parameter set for lambda, the optimisation method set, along with its maxit-value, and, finally, the output of the call to \code{optim}, including the target value (the negative log-likelihood), the convergence report and the parameters as fitted \emph{at the transformed scale}. Note that the entries under "opt" will not be the same as those under "par_opt"!
 #' 
@@ -45,7 +45,7 @@ fit_tapnet <- function(tapnet, # a tapnet object
                        hessian = FALSE, # Output hessian for calculation of standard errors?
                        obj_function = "multinom", # Objective function for the optimization,
                        # either "multinom" or "sq_diff"
-                       fit.delta=TRUE # shall the abundance-modifier delta be fit?
+                       fit.delta=FALSE # shall the abundance-modifier delta be fit?
 ) {
   # Fit a model of interaction probabilities based on traits, abundances and phylogenies
   # to one or more observed interaction networks

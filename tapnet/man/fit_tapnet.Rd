@@ -14,7 +14,7 @@ fit_tapnet(
   maxit = 50000,
   hessian = FALSE,
   obj_function = "multinom",
-  fit.delta = TRUE
+  fit.delta = FALSE
 )
 }
 \arguments{
@@ -36,7 +36,7 @@ fit_tapnet(
 
 \item{obj_function}{Objective function for the optimization, either "multinom" or "sq_diff";}
 
-\item{fit.delta}{logical; should the parameter delta be fitted? It allows tapnet to down-weigh the importance of trait matching relative to abundances.}
+\item{fit.delta}{logical; should the parameter delta be fitted? It allows tapnet to down-weigh the importance of trait matching relative to abundances. Defaults to FALSE.}
 }
 \value{
 A tapnet-fit object, containing the tapnet model parameters as entries "par_opt", the settings of the tmatch_type for PEMs and observed traits, the parameter set for lambda, the optimisation method set, along with its maxit-value, and, finally, the output of the call to \code{optim}, including the target value (the negative log-likelihood), the convergence report and the parameters as fitted \emph{at the transformed scale}. Note that the entries under "opt" will not be the same as those under "par_opt"!
