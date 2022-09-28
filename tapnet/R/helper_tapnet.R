@@ -33,6 +33,7 @@
 #' @param networks the "networks" part of a tapnet object;
 #' @param tmatch_type_pem type of trait matching function for latent traits;
 #' @param tmatch_type_obs type(s) of trait matching functions for observed traits; can be a vector as long as there are traits;
+#' @param TmatchMatrixList list of independent trait-matching matrices (one per network);
 #' @param lambda LASSO shrinkage parameter to avoid collinearity issues when observed traits are phylogenetically correlated;
 #' @param obj_function objective function, either "multinom" or "least squares" (leads to OLS fitting) or "bjorn" (leading to use of a somewhat weird but in some opinion the correct way to compute the likelihood);
 #' @param true_pars parameters used for simulating the network;
@@ -45,7 +46,7 @@
 #' @param indices vector of names of network indices to compute; see \code{\link[bipartite]{networklevel}} for what is available;
 #' @param tapnet a tapnet object;
 #' @param fit a fitted tapnet;
-#' @param fitted_I_mat the fitted I-matrix of a fitted tapnet object (I think).
+#' @param fitted_I_mat the fitted I-matrix of a fitted tapnet object.
 
 #'
 #' @references Benadi et al. in prep
@@ -218,6 +219,7 @@ loglik_tapnet <- function(params, # Parameters (a *named* vector)
                           networks, # the "networks" part of a tapnet object
                           tmatch_type_pem, # Type of trait matching function for latent traits
                           tmatch_type_obs, # Type(s) of trait matching functions for observed traits
+                          TmatchMatrixList=NULL, # independent trait-matching matrices (one per network)
                           lambda=0, # LASSO shrinkage parameter
                           obj_function = "multinom",  # Objective function: "least squares", "bjorn"
                           fit.delta=TRUE # either "multinom" (negative log-likelihood based on a multinomial distribution) or
@@ -251,6 +253,13 @@ loglik_tapnet <- function(params, # Parameters (a *named* vector)
     I_mat <- simnetfromtap(traits = networks[[i]]$traits, abuns = networks[[i]]$abuns,
                            paramsList = paramsList, pems = networks[[i]]$pems,
                            tmatch_type_pem = tmatch_type_pem, tmatch_type_obs = tmatch_type_obs)
+    if (!is.null(TmatchMatrixList)){ # check that there are no observed interactions where you have 0 probability!
+      zeros1 <- which(TmatchMatrixList[[i]] == 0, arr.ind=FALSE)
+      obs1 <- if (length(zeros1) > 0) networks[[i]]$web[zeros1] else 0
+      if (any(obs1 > 0)) stop("The TmatchMatrixList contains zeros in places where observations were made. That leads to -Inf likelihoods.\n Please replace by a positive value substantially smaller than 1/prod(dim(web))!")
+      I_mat <- I_mat * TmatchMatrixList[[i]]
+      I_mat <- I_mat/sum(I_mat)
+    }
     if (obj_function == "multinom") {
       obj[i] <- dmultinom(as.vector(networks[[i]]$web), size = sum(networks[[i]]$web),
                           prob = as.vector(I_mat), log = TRUE)

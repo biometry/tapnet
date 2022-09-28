@@ -103,15 +103,12 @@ simnetfromtap <- function(traits, # named list of trait data matrices for lower 
   }
   
   # T_mat <- T_mat / sum(T_mat)
-  # note that T_mat is not scaled, allowing the optimiser to adjust balance between TRUE and L!
-  
-  
-  # Problem: When standardising the L and T matrix, the resulting function has no optimum anymore (because it divides by 1/s^2, thereby turning the normal distribution into a linear function).
-  # Solution: Don't standardise.
+  # note that T_mat is not scaled, allowing the optimiser to adjust balance between T and L!
   
   # Problem: How to combine L and T, so that when one entry, say L_1,1 is 0 it does not kill T_1,1 which may be very high? In other words: if the observed trait predicts a very high P of interaction, but the latent does not, it currently multiplies them up and yields an overall low P. Thereby it effectively leads to a correlation in the optimised T and L.
   # Solution: Compute LT as cell-wise maximum of L and T. Thereby each interaction is predicted as EITHER driven by observed OR latent trait matching (or neither). Return standardised A * max(L, T) as I.mat. 
   # Alternatively, use LT <- L + T.
+  # Alternatively: this is what we want, not a problem!
   
   # Problem: What if only abundance was important: estimates for T and L are now meaningless, and estimates of sigma should go towards infinity.
   # Solution: Shrinkage. Regularise all linear combination parameters, but not sigmas. That is: minimise -logLik + lambda*sum(parameters), with lambda around 0.01 or so.

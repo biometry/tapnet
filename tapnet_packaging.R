@@ -31,6 +31,16 @@ pred1 <- predict_tapnet(fit, abuns=tap$networks[[1]]$abuns) # predict to forest 
 cor(as.vector(pred1*sum(tap$networks[[1]]$web)), as.vector(tap$networks[[1]]$web)) # correlation with observed interactions
 fit
 
+# test TmatchMatrixList option:
+data(Tinoco)
+tap2 <- make_tapnet(tree_low = plant_tree, tree_high = humm_tree, networks = networks[2], traits_low = plant_traits, traits_high = humm_traits, abun_low=plant_abun[2], abun_high=humm_abun[2], npems_lat = 4)
+# make a mask:
+Mask <- list(networks[[2]])
+Mask[[1]][,] <- 1
+Mask[[1]][10:11, 10:11] <- 0# 1e-8 # give unlikely events a VERY small value (less than 1/prod(dim(web)) ) 
+fit2 <- fit_tapnet(tap2, TmatchMatrixList=Mask)
+fit2 # different to without the mask
+
 
 
 data(Tinoco)
@@ -54,11 +64,19 @@ fit_tapnet(tap, fit.delta=F, obj_function="bjorn", hessian=T)
 # all three yield rather different estimates; hessians look fine (for fitted parameters)
 fit_tapnet(tap, fit.delta=F, obj_function="bjorn", hessian=T, tmatch_type_pem = "otto")  # should step with specific error message: works!
 
+# test simulate_tapnet
+si <- simulate_tapnet(10, 15, ntraits_nopem = 0, ntraits_pem = 0)
+A <- si$networks[[1]]$abuns$low %*% t(si$networks[[1]]$abuns$high)
+A <- A/sum(A)
+cor(as.vector(A), as.vector(si$networks[[1]]$I_mat)) # this should be 1, as we use neither traits nor PEMs
+# shows that simulate_tapnet uses PEMs even when ntraits_pem=0!!
 
 #### wishlist: ####
 * add correlation method option to gof (not only Spearman)
 * add deOptim as optimiser (more robust but still fast, I hope)
 * find data suitable for analysis and include in the package, e.g. https://doi.org/10.5061/dryad.nk98sf7sc (Wang et al., 2020). 
+* add check for non-integer response?
+* make a function for trait matching for phenology: give distribution for tmatch, e.g. Gaussian or uniform; or directly provide a phenology-match-matrix as input
 
 
 

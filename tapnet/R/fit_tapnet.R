@@ -10,6 +10,7 @@
 #' @param ini initial parameter values for the optimization; optional;
 #' @param tmatch_type_pem type of trait matching function for latent traits, currently "normal" or "shiftlnorm";
 #' @param tmatch_type_obs type of trait matching function for observed traits, currently "normal" or "shiftlnorm";
+#' @param TmatchMatrixList list of independent trait-matching matrices (one per network);
 #' @param lambda LASSO shrinkage factor for latent trait parameters;
 #' @param method Optimization method (most derivative-based approaches will not work! SANN is a (slow) alternative to the default);
 #' @param maxit Maximum number of steps for optimization;
@@ -39,6 +40,7 @@ fit_tapnet <- function(tapnet, # a tapnet object
                        ini = NULL, # initial parameter values for the optimization
                        tmatch_type_pem = "normal", # type of trait matching function for latent traits
                        tmatch_type_obs = "normal", # type of trait matching function for observed traits
+                       TmatchMatrixList = NULL, # list of pre-formulated trait-matching probability matrices, e.g. for phenology or known forbidden links; will be multiplied onto internally computed trait matching; must have as many matrices as there are networks in the tapnet object!
                        lambda = 0, # LASSO shrinkage factor for latent trait parameters
                        method = "Nelder", # Optimization method
                        maxit = 50000, # Maximum number of steps for optimization
@@ -53,6 +55,11 @@ fit_tapnet <- function(tapnet, # a tapnet object
   if (!inherits(tapnet, "tapnet")) {
     stop("This is no tapnet object! Please use function make_tapnet or simulate_tapnet to create one.")
   }
+  
+  if (!is.null(TmatchMatrixList)) {
+    if (length(TmatchMatrixList) != length(tapnet$networks) ) stop("TmatchMatrixList must have as many matrices as there are networks in the tapnet object!")
+  }
+  
   
   # if (tapnet$trees$low) ... # check whether a PEM-fit is asked for but no phylogeny is provided; if so, ask user to set tmatch_type_pem to "no" to ignore this information
   
@@ -103,7 +110,7 @@ fit_tapnet <- function(tapnet, # a tapnet object
   # Optimization
   opt <- optim(par = ini, fn = loglik_tapnet, networks = tapnet$networks,
                tmatch_type_pem = tmatch_type_pem, tmatch_type_obs = tmatch_type_obs, lambda = lambda, fit.delta=fit.delta,
-               control = list(maxit = maxit), method = method, hessian = hessian, obj_function = obj_function)
+               control = list(maxit = maxit), method = method, hessian = hessian, obj_function = obj_function, TmatchMatrixList=TmatchMatrixList)
 
   # Convert optimized parameter vector to a named list 
   par_opt <- param_vec2list(opt$par, n = length(pem_names_low), m = length(pem_names_high), fit.delta=fit.delta)
