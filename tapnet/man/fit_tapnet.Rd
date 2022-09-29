@@ -9,6 +9,7 @@ fit_tapnet(
   ini = NULL,
   tmatch_type_pem = "normal",
   tmatch_type_obs = "normal",
+  TmatchMatrixList = NULL,
   lambda = 0,
   method = "Nelder",
   maxit = 50000,
@@ -25,6 +26,8 @@ fit_tapnet(
 \item{tmatch_type_pem}{type of trait matching function for latent traits, currently "normal" or "shiftlnorm";}
 
 \item{tmatch_type_obs}{type of trait matching function for observed traits, currently "normal" or "shiftlnorm";}
+
+\item{TmatchMatrixList}{list of independent trait-matching matrices (one per network);}
 
 \item{lambda}{LASSO shrinkage factor for latent trait parameters;}
 

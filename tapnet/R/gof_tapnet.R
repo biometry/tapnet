@@ -13,7 +13,7 @@
 #' @param se_refit logical; should standard errors for the parameters be calculated using parametric bootstrap (refitting on simulated data)? Defaults to FALSE because it's very slow (i.e. takes hours).
 #' @param se_nsim number of simulations for parametric bootstrap (ignored unless the previous argument is set to TRUE).
 #' 
-#' @return A list of goodness-of-fit measures: bc_sim_web are the Bray-Curtis similarities between fitted and observed network; cor_web are Spearman correlations between fitted and observed; and net_indices compute the selected network indices for fitted and observed networks. If more than one network is used for fitting, all these measures are returned for all networks (as vector or list under the respective label). See example.
+#' @return A list of goodness-of-fit measures: bc_sim_web are the Bray-Curtis similarities between fitted and observed network; cor_web are Spearman correlations between fitted and observed; and net_indices compute the selected network indices for fitted and observed networks. Also outputs the fitted I_mat for users to do other gymnastics with it. If more than one network is used for fitting, all these measures are returned for all networks (as vector or list under the respective label). See example.
 #' 
 #' 
 #' @references Benadi et al. in prep
@@ -87,6 +87,7 @@ gof_tapnet <- function(
                                        q2.5 = apply(fitted_indices, 2, quantile, probs = 0.025, na.rm = TRUE),
                                        q97.5 = apply(fitted_indices, 2, quantile, probs = 0.975, na.rm = TRUE))
     rownames(gof$net_indices[[i]]) <- NULL
+    gof$fitted_I_mat[[i]] <- fitted_I_mat[[i]] # also store I_mat fitted
   }
   
   # 2. Compare fitted and true parameters, estimate uncertainty of fitted parameters

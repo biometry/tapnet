@@ -26,7 +26,7 @@ library(tapnet)
 data(Tinoco)
 tap <- make_tapnet(tree_low = plant_tree, tree_high = humm_tree, networks = networks[2:3], traits_low = plant_traits, traits_high = humm_traits, abun_low=plant_abun[2:3], abun_high=humm_abun[2:3], npems_lat = 4)
 fit <- fit_tapnet(tap, fit.delta = T) # fits on network 2 and 3
-gof_tapnet(fit) 
+str(gof_tapnet(fit) )
 pred1 <- predict_tapnet(fit, abuns=tap$networks[[1]]$abuns) # predict to forest network
 cor(as.vector(pred1*sum(tap$networks[[1]]$web)), as.vector(tap$networks[[1]]$web)) # correlation with observed interactions
 fit
@@ -40,6 +40,7 @@ Mask[[1]][,] <- 1
 Mask[[1]][10:11, 10:11] <- 0# 1e-8 # give unlikely events a VERY small value (less than 1/prod(dim(web)) ) 
 fit2 <- fit_tapnet(tap2, TmatchMatrixList=Mask)
 fit2 # different to without the mask
+
 
 
 

@@ -35,6 +35,7 @@ loglik_tapnet(
   networks,
   tmatch_type_pem,
   tmatch_type_obs,
+  TmatchMatrixList = NULL,
   lambda = 0,
   obj_function = "multinom",
   fit.delta = TRUE
@@ -81,6 +82,8 @@ refit_params(tapnet, fit, fitted_I_mat)
 
 \item{tmatch_type_obs}{type(s) of trait matching functions for observed traits; can be a vector as long as there are traits;}
 
+\item{TmatchMatrixList}{list of independent trait-matching matrices (one per network);}
+
 \item{lambda}{LASSO shrinkage parameter to avoid collinearity issues when observed traits are phylogenetically correlated;}
 
 \item{obj_function}{objective function, either "multinom" or "least squares" (leads to OLS fitting) or "bjorn" (leading to use of a somewhat weird but in some opinion the correct way to compute the likelihood);}
@@ -99,7 +102,7 @@ refit_params(tapnet, fit, fitted_I_mat)
 
 \item{fit}{a fitted tapnet;}
 
-\item{fitted_I_mat}{the fitted I-matrix of a fitted tapnet object (I think).}
+\item{fitted_I_mat}{the fitted I-matrix of a fitted tapnet object.}
 }
 \description{
 Lower-level, non-exported functions to be called by the main tapnet functions

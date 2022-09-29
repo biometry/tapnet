@@ -18,6 +18,12 @@
 #' 
 #' @section News/versions:
 #' \describe{
+#'   \item{0.5: XXX-YYY-2022}{
+#'       \describe{
+#'           \item{Hand-coding interactions probabilities:}{Added option to hand over an externally prepared "mask" of "forbidden links", which is multiplied onto fits.}
+#'           \item{\code{\link{gof_tapnet}} output}{enriched by the fitted I_mat. There was no way to output the I_mat until now, so the fit_tapnet output was not really useable.}
+#'       }
+#'   }
 #'   \item{0.4: 15-Sep-2022}{Added the option to fit networks without phylogenetic information. To do so, use \option{tmatch_type_pems="no"}. Rather experimental at this stage.}
 #'   \item{0.3; 10-Jun-2019}{Added option "tapnet" to predict_tapnet in order to be able to use it on simulations. Cleaned up the code according to devtools::check-report.}
 #'   \item{0.2; 19-Sep-2019}{Tinoco-data updated to now also contain external abundances (thanks Boris for providing these!). Help file for these data updated accordingly. By now we have used tapnet on many simulations and some real data and are fairly confident that the functions work as they should. The real test comes when data are not carefully prepared, with corrupted names and in non-alphabetical order, networks have NAs and so forth. Hopefully we have coded properly for these cases, too.}
