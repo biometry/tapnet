@@ -17,6 +17,12 @@ R CMD check tapnet_0.4.tar.gz --as-cran
 
 # %%%%%%%%%%%%%%%%%%%%%%%%%     %%%%%%%%%%%%%%%%%%%%%%%%%      %%%%%%%%%%%%%%%%%%%%%%%%%     %%%%%%%%%%%%%%%%%%%%%%%%%
 # %%%%%%%%%%%%%%%%%%%%%%%%%     %%%%%%%%%%%%%%%%%%%%%%%%%      %%%%%%%%%%%%%%%%%%%%%%%%%     %%%%%%%%%%%%%%%%%%%%%%%%%
+# fix things:
+# use NON-STANDARDISED trait-matching function, so that Pmax is always 1, no matter which value sigma takes; prevents function to have a maximum at sigma=0
+# re-run Tinoco-analysis: can delta be estimated properly (i.e. not as random value, but as optimum)? Do different optimisers yield same value?
+
+# %%%%%%%%%%%%%%%%%%%%%%%%%     %%%%%%%%%%%%%%%%%%%%%%%%%      %%%%%%%%%%%%%%%%%%%%%%%%%     %%%%%%%%%%%%%%%%%%%%%%%%%
+# %%%%%%%%%%%%%%%%%%%%%%%%%     %%%%%%%%%%%%%%%%%%%%%%%%%      %%%%%%%%%%%%%%%%%%%%%%%%%     %%%%%%%%%%%%%%%%%%%%%%%%%
 # prepare things:
 #save(humm_traits, humm_tree, networks, plant_traits, plant_tree, file="data/Tinoco.rda")
 
@@ -81,8 +87,31 @@ cor(as.vector(A), as.vector(si$networks[[1]]$I_mat)) # this should be 1, as we u
 
 
 
+#### use ranger for example ####
+library(tapnet)
+data(Tinoco)
+# Note: use npems_lat = 105, use.all.pems=T to make sure ALL PEMs are being used; otherwise tapnet2df fails.
+tap <- make_tapnet(tree_low = plant_tree, tree_high = humm_tree, networks = networks[2:3], traits_low = plant_traits, traits_high = humm_traits, abun_low=plant_abun[2:3], abun_high=humm_abun[2:3], npems_lat = 105, use.all.pems=T)
+tapdats <- tapnet2df(tapnetObject=tap)
+head(tapdats, 3)
+tap1 <- make_tapnet(tree_low = plant_tree, tree_high = humm_tree, networks = networks[1], traits_low = plant_traits, traits_high = humm_traits, abun_low=plant_abun[1], abun_high=humm_abun[1], npems_lat = 105, use.all.pems=T)
+tapdats1 <- tapnet2df(tapnetObject=tap1)
+# ranger
+library(ranger)
+frf <- ranger(interactions ~., data=tapdats[, -c(1,2,4)])
+plot(predict(frf, data=tapdats1)$predictions+1, tapdats1$interactions+1, log="xy")
+abline(0,1)
+cor(predict(frf, data=tapdats1)$predictions+1, tapdats1$interactions+1)
 
-#### trialling TAPNET ####
+# mlp
+library(RSNNS)
+fmlp <- mlp(tapdats[, -c(1:4)], tapdats[, 3], size=c(10, 10, 10, 10))
+predict(fmlp, newdata=tapdats1[, -c(1:3)])
+#hm; try cito for better defaults?
+
+
+
+#### modifying and trialling TAPNET ####
 
 fit_tapnet -> optim -> logLik -> simnetfromtap
 
@@ -112,8 +141,6 @@ networks <- tap$networks
 #tmatch_type_pem = tmatch_type_pem, tmatch_type_obs = tmatch_type_obs
 
 
-
-
 # evaluate logLik for different values of tmatch_width_obs1:
 trials <- ini
 
@@ -130,9 +157,61 @@ plot(sigma, ell, type="l", ylim=c(2000, 4000)) # very weak optimum for network 3
 abline(v=2.77)
 
 
-
 #### run fit_tapnet with different random starting values ####
 
-
-
 3. make matrix with high matching: does it show a clear optimum when evaluating the loglik?
+
+  
+  
+#### trial embedding ####
+
+library(tapnet)
+data(Tinoco)
+# Note: use npems_lat = 105, use.all.pems=T to make sure ALL PEMs are being used; otherwise tapnet2df fails.
+tap <- make_tapnet(tree_low = plant_tree, tree_high = humm_tree, networks = networks[2:3], traits_low = plant_traits, traits_high = humm_traits, abun_low=plant_abun[2:3], abun_high=humm_abun[2:3], npems_lat = 105, use.all.pems=T)
+tapdats <- tapnet2df(tapnetObject=tap)
+head(tapdats, 3)
+tap1 <- make_tapnet(tree_low = plant_tree, tree_high = humm_tree, networks = networks[1], traits_low = plant_traits, traits_high = humm_traits, abun_low=plant_abun[1], abun_high=humm_abun[1], npems_lat = 105, use.all.pems=T)
+tapdats1 <- tapnet2df(tapnetObject=tap1)
+
+# using t-stochastic neighbourhood embedding:
+library(Rtsne)
+emb <- Rtsne(tapdats[,-c(1,2,4)])
+plot(emb$Y, asp=1)
+# hm; no way to predict from this
+# setting input to NA leads to error
+
+# using node2vec: network information only, no covariates!
+library(node2vec)
+# make edge-with-weights object, removing all 0 links:
+x <- tapdats[which(tapdats[,3] > 0), c(1,2,3)]
+unique(x[,2]) # 4 letters needed to uniquely identify species
+x[, 1] <- sapply(x[,1], substr, 1, 4)
+x[, 2] <- sapply(x[,2], substr, 1, 4)
+x[, 3] <- log(x[,3] + 1)
+head(x)
+
+emb <- node2vecR(x, walk_length=10, p=2, dim=5)
+emb
+
+
+
+#### trait matching as in Pichler et al. (2019) ####
+# https://github.com/MaximilianPi/TraitMatching
+library(tapnet)
+data(Tinoco)
+# Note: use npems_lat = 105, use.all.pems=T to make sure ALL PEMs are being used; otherwise tapnet2df fails.
+tap <- make_tapnet(tree_low = plant_tree, tree_high = humm_tree, networks = networks[2:3], traits_low = plant_traits, traits_high = humm_traits, abun_low=plant_abun[2:3], abun_high=humm_abun[2:3], npems_lat = 105, use.all.pems=T)
+
+devtools::install_github(repo = "https://github.com/MaximilianPi/TraitMatching", subdir = "TraitMatching")
+library(TraitMatching)
+#sim = simulateInteraction(weights = list(main = 0.1, inter = c(0.3,0.3,0.3)))
+# sim$A, sim$B, sim$binar()
+#community = createCommunity(A, B, Z)
+# A and B are species groups with traits, respectively; Z is observed interactions
+A <- cbind(abun=tap$networks[[1]]$abuns[[1]], tap$networks[[1]]$traits[[1]], tap$networks[[1]]$pems[[1]][names(tap$networks[[1]]$abuns[[1]]),])
+B <- cbind(abun=tap$networks[[1]]$abuns[[2]], tap$networks[[1]]$traits[[2]], tap$networks[[1]]$pems[[2]][names(tap$networks[[1]]$abuns[[2]]),])
+Z <- tap$networks[[1]]$web
+comm <- createCommunity(a=A, b=B, z=Z, impute=F, log=T)
+# does not work; creates empty list and I cannot be bothered to fix it
+#fit = runTM(community = comm, method = "RF", iters = 20L)

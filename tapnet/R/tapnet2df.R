@@ -34,6 +34,12 @@ tapnet2df <- function(tapnetObject){
   
   if (!inherits(tapnetObject, "tapnet")) stop("This is no tapnet object! Please use function 'make_tapnet' or 'simulate_tapnet' to create it.")
   
+  # check that all networks have the same PEMs
+  if (length(tapnetObject$networks) > 1){
+    if (length(setdiff(colnames(tapnetObject$networks[[1]]$pems$low), colnames(tapnetObject$networks[[2]]$pems$low)) > 0) stop("Please go back to 'make_tapnet' and use setting to keep all PEMs.")
+  }
+  
+  
   # put a large for-loop around the following code (run through networks)
   #extract elements: 
   web <- tapnetObject$networks
