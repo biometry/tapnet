@@ -79,11 +79,14 @@ cor(as.vector(A), as.vector(si$networks[[1]]$I_mat)) # this should be 1, as we u
 # shows that simulate_tapnet uses PEMs even when ntraits_pem=0!!
 
 #### wishlist: ####
+* add function similar to select_relevant_pems to cut phylotree to species present EVEN when calling "use.all.pems=T" in make_tapnet (wish by Amanda)
 * add correlation method option to gof (not only Spearman)
 * add deOptim as optimiser (more robust but still fast, I hope)
 * find data suitable for analysis and include in the package, e.g. https://doi.org/10.5061/dryad.nk98sf7sc (Wang et al., 2020). 
 * add check for non-integer response?
 * make a function for trait matching for phenology: give distribution for tmatch, e.g. Gaussian or uniform; or directly provide a phenology-match-matrix as input
+
+
 
 
 

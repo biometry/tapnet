@@ -47,6 +47,7 @@
 #' @param tapnet a tapnet object;
 #' @param fit a fitted tapnet;
 #' @param fitted_I_mat the fitted I-matrix of a fitted tapnet object.
+#' @param xi penalty for increasing the width of the (unstandardised) trait-matching function; defaults to 1 (implying a quadratically increasing weight of width in the optimisatino function, i.e. strongly acting against large values of sigma)
 
 #'
 #' @references Benadi et al. in prep
@@ -164,6 +165,7 @@ tmatch <- function(delta_t, # Vector of pairwise trait differences (higher - low
                    type = "normal", # Trait matching function
                    width = 1, # Width parameter of trait matching function,
                    shift = 0, # shift parameter (optimum trait distance)
+                   xi = 1, # weight that determines importance of penalty to value of width
                    err = 1E-5 # "baseline" probability of match, even if traits do not match at all
 ){# Calculate interaction probabilities based on trait matching
   # shift
@@ -173,10 +175,12 @@ tmatch <- function(delta_t, # Vector of pairwise trait differences (higher - low
   delta_t <- delta_t + shift
   
   # lognormal distribution with mode shifted to zero:
-  if(type == "shiftlnorm") out <- dlnorm(delta_t + width, meanlog = log(width) + 1) + err
+  if (type == "shiftlnorm") out <- dlnorm(delta_t + width, meanlog = log(width) + 1) + err
   
-  # normal distribution:
-  if(type == "normal") out <- dnorm(delta_t, mean = 0, sd = width) + err
+  # normal distribution, unstandardised but with sigma-based penalty:
+  if (type == "normal") out <- 
+    (sqrt(2*pi)*width) * dnorm(delta_t, mean = 0, sd = width) + err + xi * width^2 # penalty increases quadratically with sigma
+    #(sqrt(2*pi)*width) * dnorm(delta_t, mean = 0, sd = width) + xi * dnorm(delta_t, mean = 0, sd = width) + err # penalty decreases linearly with sigma
   
   return(out)
 }
