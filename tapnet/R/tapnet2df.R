@@ -36,7 +36,7 @@ tapnet2df <- function(tapnetObject){
   
   # check that all networks have the same PEMs
   if (length(tapnetObject$networks) > 1){
-    if (length(setdiff(colnames(tapnetObject$networks[[1]]$pems$low), colnames(tapnetObject$networks[[2]]$pems$low)) > 0) stop("Please go back to 'make_tapnet' and use setting to keep all PEMs.")
+    if (length(setdiff(colnames(tapnetObject$networks[[1]]$pems$low), colnames(tapnetObject$networks[[2]]$pems$low)) > 0)) stop("Please go back to 'make_tapnet' and use setting to keep all PEMs.")
   }
   
   
