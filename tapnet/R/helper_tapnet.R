@@ -73,18 +73,18 @@ bjornloglik <- function(web, P) {
   loglik <- 0
   R <- rowSums(web)
   C <- colSums(web)
-  for(i in 1:NROW(web)) {
+  for(i in 1:NROW(web)) { # evaluate cell by cell
     for(j in 1:NCOL(web)) {
-      k <- web[i, j]
+      k <- web[i, j] 
       if (k > 0) {
-        loglik <- loglik + k * log(P[i, j])
-        R[i] <- R[i] - k
-        C[j] <- C[j] - k
-        if(R[i] == 0) {
+        loglik <- loglik + k * log(P[i, j]) # add loglik for that cell to overall loglik
+        R[i] <- R[i] - k # update row totals
+        C[j] <- C[j] - k # update column totals
+        if(R[i] == 0) { # if all observations for that row have been "depleted", update P:
           r <- P[i,]
           c <- P[,j]
           P <- sweep(P, 2, 1-r, "/") # renormalise probabilities to account for "lost" interactions
-          if(C[j] == 0) {
+          if(C[j] == 0) { # same for column depletion
             P <- sweep(P, 1, 1-c, "/")
           }
         }
@@ -146,7 +146,11 @@ select_relevant_pems <- function(tree, # a phylogenetic tree
   # keep only those species also present in the subweb:
   PEMsallsub <- PEMsall[rownames(PEMsall) %in% species, ]
   #reduce tree to those species present in the web:
-  sub.tree <- keep.tip(tree, species)
+  sub.tree <- keep.tip(tree, species, collapse.singles=FALSE) # 03SEP2023
+  # using drop not keep, as that allows for specifying the collapse.singles option,
+  # otherwise I sometimes run into problems (for unknown reasons)
+  #toDrop <- setdiff(tree$tip.label, species)
+  #sub.tree <- drop.tip(tree, toDrop, collapse.singles=FALSE)
   PEMssubtree <- pems_from_tree(sub.tree)
   # now correlate each subtreePEM with all PEMsall and identify the best correlation
   keep.these.PEMs <- NULL
@@ -228,6 +232,7 @@ loglik_tapnet <- function(params, # Parameters (a *named* vector)
                           obj_function = "multinom",  # Objective function: "least squares", "bjorn"
                           fit.delta=TRUE # either "multinom" (negative log-likelihood based on a multinomial distribution) or
                           # "sq_diff" (sum of squared differences between observed and predicted log(interactions + 1))
+                          # or "bjorn" (experimental; In contrast to the multinomial, this function assumes that the marginal totals of P constrain the probabilities. Hence, if all observations for one column (or row) have been evaluated for their probabilities, any new observation cannot come from this column (or row) anymore. This means, the probabilities in that "depleted" column (or row) have to be proportionally distributed over the other rows (or columns). )
 ) {
   # Compute value of the objective function for fitting given the parameter values and "tap" data
   

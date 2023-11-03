@@ -149,7 +149,7 @@ make_tapnet <- function(tree_low, # phylogenetic tree of lower trophic level (re
     }
     pems_web_low <- pems_web_low[order(rownames(pems_web_low)),] # sort species alphabetically
     if (use.all.pems == FALSE){
-      pems_web_high <- select_relevant_pems(tree_high, colnames(networks[[i]]))
+      pems_web_high <- select_relevant_pems(tree=tree_high, species=colnames(networks[[i]]))
     } else {
       pems_web_high <- pems_from_tree(tree_high)
     }

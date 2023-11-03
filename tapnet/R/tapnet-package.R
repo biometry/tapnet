@@ -18,8 +18,9 @@
 #' 
 #' @section News/versions:
 #' \describe{
-#'   \item{0.5: XXX-YYY-2022}{
+#'   \item{0.5: XXX-YYY-2023}{
 #'       \describe{
+#'           \item{Bug fix in \code{\link{tapnet2df}}:}{Without traits the function threw an error.}
 #'           \item{Hand-coding interactions probabilities:}{Added option to hand over an externally prepared "mask" of "forbidden links", which is multiplied onto fits.}
 #'           \item{\code{\link{gof_tapnet}} output}{enriched by the fitted I_mat. There was no way to output the I_mat until now, so the fit_tapnet output was not really useable.}
 #'       }

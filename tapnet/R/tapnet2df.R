@@ -104,9 +104,10 @@ tapnet2df <- function(tapnetObject){
       lowerTraits <- as.data.frame(tapnetObject$traits$low)
       colnames(lowerTraits) <- paste0("traitL", colnames(lowerTraits))
       lowerTraits$names <- rownames(lowerTraits)#rownames(one.network$web)
+      dats <- merge(dats, lowerTraits, by.x = "IDlower", by.y = "names")
+      rm(lowerTraits)
     }
-    dats <- merge(dats, lowerTraits, by.x = "IDlower", by.y = "names")
-    rm(lowerTraits)
+    
     
     # add observed traits higher:
     if (is.null(one.network$traits$high)){
@@ -116,9 +117,10 @@ tapnet2df <- function(tapnetObject){
       higherTraits <- as.data.frame(tapnetObject$traits$high)
       colnames(higherTraits) <- paste0("traitH", colnames(higherTraits))
       higherTraits$names <- rownames(higherTraits)# colnames(one.network$web)
+      dats <- merge(dats, higherTraits, by.x = "IDhigher", by.y = "names")
+      rm(higherTraits)
     }
-    dats <- merge(dats, higherTraits, by.x = "IDhigher", by.y = "names")
-    rm(higherTraits)
+
     rm(one.network) 
     
     # store each network underneath the previous network:

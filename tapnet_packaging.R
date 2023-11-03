@@ -199,6 +199,33 @@ emb
 
 
 
+#### trial neural networks ####
+
+library(tapnet)
+data(Tinoco)
+# Note: use npems_lat = 105, use.all.pems=T to make sure ALL PEMs are being used; otherwise tapnet2df fails.
+tap <- make_tapnet(tree_low = plant_tree, tree_high = humm_tree, networks = networks[2:3], traits_low = plant_traits, traits_high = humm_traits, abun_low=plant_abun[2:3], abun_high=humm_abun[2:3], npems_lat = 105, use.all.pems=T)
+tapdats <- tapnet2df(tapnetObject=tap)
+head(tapdats, 3)
+tap1 <- make_tapnet(tree_low = plant_tree, tree_high = humm_tree, networks = networks[1], traits_low = plant_traits, traits_high = humm_traits, abun_low=plant_abun[1], abun_high=humm_abun[1], npems_lat = 105, use.all.pems=T)
+tapdats1 <- tapnet2df(tapnetObject=tap1)
+
+
+library(nnet)
+fnn <- nnet(x=tapdats[, -c(1:5)], y=tapdats$interactions, linout=T, decay=0.00001, size=20)
+preds <- predict(fnn, newdata=tapdats1[, -c(1:5)])
+plot(preds, tapdats1$interactions)
+abline(0,1)
+
+
+library(neuralnet)
+fnet <- neuralnet(interactions ~ . , data=tapdats[, -c(1,2,4)], hidden=c(10, 7, 10), linear.output=T, stepmax=1e6)
+str(fnet)
+predict(fnet, newdata=tapdats1[, -c(1,2,4)])
+
+ 
+
+
 #### trait matching as in Pichler et al. (2019) ####
 # https://github.com/MaximilianPi/TraitMatching
 library(tapnet)
