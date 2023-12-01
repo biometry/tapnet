@@ -80,9 +80,9 @@ tapnet2df <- function(tapnetObject){
     } else { # take values from argument:
       lowerAbun  <- data.frame("abunL" = one.network$abun$low)
       lowerAbun$names <- rownames(one.network$web)
+      dats <- merge(dats, lowerAbun, by.x = "IDlower", by.y = "names")
+      rm(lowerAbun)
     }
-    dats <- merge(dats, lowerAbun, by.x = "IDlower", by.y = "names") # merge in lower level IDs
-    rm(lowerAbun)
     
     # add abundances higher
     if (is.null(one.network$abun$high)){
@@ -92,9 +92,9 @@ tapnet2df <- function(tapnetObject){
     } else { # take values from argument:
       higherAbun  <- data.frame("abunH" = one.network$abun$high)
       higherAbun$names <- colnames(one.network$web)
+      dats <- merge(dats, higherAbun, by.x = "IDhigher", by.y = "names") 
+      rm(higherAbun)
     }
-    dats <- merge(dats, higherAbun, by.x = "IDhigher", by.y = "names") # merge in lower level IDs
-    rm(higherAbun)
     
     # add observed traits lower:
     if (is.null(one.network$traits$low)){

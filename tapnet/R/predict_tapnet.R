@@ -40,14 +40,12 @@ predict_tapnet <- function(#tapnet, # A tapnet object upon which the prediction 
   if (is.null(tapnet)) tapnet <- get(attr(fit, "tapnet_name")) # uses attribute name to get the tapnet object
   
   # Check input format:
-  if (class(tapnet) != "tapnet")
-    stop("'tapnet' must be an object produced by function 'simulate_tapnet' or alike.")
-  if (class(fit) != "fitted.tapnet")
-    stop("'fit' must be an object produced by function 'fit_tapnet'.")
+  if (!is(tapnet, "tapnet"))     stop("'tapnet' must be an object produced by function 'simulate_tapnet' or alike.")
+  if (! is(fit, "fitted.tapnet"))     stop("'fit' must be an object produced by function 'fit_tapnet'.")
+  
   # TODO: Check that "tapnet" is the object that was used to produce "fit".
   
-  if (class(abuns) != "list" | length(abuns) != 2)
-    stop("'abuns' must be a list of lower and higher trophic level abundances.")
+  if (!is.list(abuns) | length(abuns) != 2)    stop("'abuns' must be a list of lower and higher trophic level abundances.")
   
   IsNamedVector <- function(vec) {
     is.vector(vec) & is.numeric(vec) & !is.null(names(vec)) & !any(is.na(names(vec)))

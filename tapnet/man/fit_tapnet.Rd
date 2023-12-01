@@ -37,7 +37,7 @@ fit_tapnet(
 
 \item{hessian}{logical: output hessian for calculation of standard errors?}
 
-\item{obj_function}{Objective function for the optimization, either "multinom" or "sq_diff";}
+\item{obj_function}{Objective function for the optimization, either "multinom" or "sq_diff" (or "bjorn");}
 
 \item{fit.delta}{logical; should the parameter delta be fitted? It allows tapnet to down-weigh the importance of trait matching relative to abundances. Defaults to FALSE.}
 }

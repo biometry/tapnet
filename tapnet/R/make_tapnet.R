@@ -141,20 +141,28 @@ make_tapnet <- function(tree_low, # phylogenetic tree of lower trophic level (re
   webs <- list()
   for (i in 1:length(networks)) {
     webs[[i]] <- list()
-    webs[[i]]$web <- networks[[i]]
+    webs[[i]]$web <- bipartite::empty(networks[[i]])
+    speciesLow <- sort(rownames(bipartite::empty(networks[[i]])))
+    speciesHigh <- sort(colnames(bipartite::empty(networks[[i]])))
     if (use.all.pems == FALSE){
       pems_web_low <- select_relevant_pems(tree_low, rownames(networks[[i]]))
     } else {
       pems_web_low <- pems_from_tree(tree_low)
+      # bug fix CFD 01-12-2023:
+      # although we want to keep all pems, we do not want to keep all species!!
+      pems_web_low <- pems_web_low[rownames(pems_web_low) %in% speciesLow, ]
     }
     pems_web_low <- pems_web_low[order(rownames(pems_web_low)),] # sort species alphabetically
     if (use.all.pems == FALSE){
       pems_web_high <- select_relevant_pems(tree=tree_high, species=colnames(networks[[i]]))
     } else {
       pems_web_high <- pems_from_tree(tree_high)
+      # bug fix CFD 01-12-2023:
+      # although we want to keep all pems, we do not want to keep all species!!
+      pems_web_high <- pems_web_high[rownames(pems_web_high) %in% speciesHigh, ]
     }
     pems_web_high <- pems_web_high[order(rownames(pems_web_high)),] # sort species alphabetically
-    if (npems_lat==0){ # use any PEM?
+    if (is.null(npems_lat)){ # use any PEM?
       warning("No phylogenetic information will be used (otherwise change option 'npems_lat').")
       pems_web_low <- NA
       pems_web_high <- NA
@@ -173,19 +181,30 @@ make_tapnet <- function(tree_low, # phylogenetic tree of lower trophic level (re
       }
     }
     webs[[i]]$pems <- list(low = pems_web_low, high = pems_web_high)
-    webs[[i]]$abuns <- list(low = abun_low[[i]], high = abun_high[[i]])
-  }
+    webs[[i]]$abuns <- list(low = abun_low[[i]][names(abun_low[[i]]) %in% speciesLow], high = abun_high[[i]][names(abun_high[[i]]) %in% speciesHigh])
+  
+    rm(speciesLow, speciesHigh, pems_web_low, pems_web_high)
+  } # end for loop over networks
+  
+  # run traits separately (why???)
   if (is.null(traits_low)) {
-    for (i in 1:length(networks)) webs[[i]]$traits <- NULL
-  } else {
-    for (i in 1:length(networks)) {
-      traits_web_low <- traits_low[which(rownames(traits_low) %in% rownames(networks[[i]])), , drop = F]
-      traits_web_low <- traits_web_low[order(rownames(traits_web_low)), , drop = F] # sort species alphabetically
-      traits_web_high <- traits_high[which(rownames(traits_high) %in% colnames(networks[[i]])), , drop = F]
-      traits_web_high <- traits_web_high[order(rownames(traits_web_high)), , drop = F] # sort species alphabetically
-      webs[[i]]$traits <- list(low = traits_web_low, high = traits_web_high)
-    }
+      for (i in 1:length(networks)) webs[[i]]$traits <- NULL
+    } else {
+      for (i in 1:length(networks)) {
+        traits_web_low <- traits_low[which(rownames(traits_low) %in% rownames(bipartite::empty(networks[[i]]))), , drop = F]
+        traits_web_low <- traits_web_low[order(rownames(traits_web_low)), , drop = F] # sort species alphabetically
+        traits_web_high <- traits_high[which(rownames(traits_high) %in% colnames(bipartite::empty(networks[[i]]))), , drop = F]
+        traits_web_high <- traits_web_high[order(rownames(traits_web_high)), , drop = F] # sort species alphabetically
+        webs[[i]]$traits <- list(low = traits_web_low, high = traits_web_high)
+      }
   }
+
+  # checks:
+  for (i in 1:length(networks)){
+    if (dim(webs[[i]]$web)[1] != length(webs[[i]]$abuns$low))  stop(paste("Network", i, "differs between abundance and network size for lower level."))
+    if (dim(webs[[i]]$web)[2] != length(webs[[i]]$abuns$high)) stop(paste("Network", i, "differs between abundance and network size for higher level."))
+  }
+  
   
   out <- list(trees = trees, traits_all = traits_all, networks = webs)
   class(out) <- "tapnet"

@@ -26,7 +26,7 @@ pems_from_tree(tree)
 
 select_relevant_pems(tree, species)
 
-tmatch(delta_t, type = "normal", width = 1, shift = 0, err = 1e-05)
+tmatch(delta_t, type = "normal", width = 1, shift = 0, xi = 1, err = 1e-05)
 
 param_vec2list(params, n, m, fit.delta = FALSE)
 
@@ -65,6 +65,8 @@ refit_params(tapnet, fit, fitted_I_mat)
 \item{width}{width parameter of trait matching function, similar to sd in the normal;}
 
 \item{shift}{shift parameter (optimum trait distance), currently ignored in fitting;}
+
+\item{xi}{penalty for increasing the width of the (unstandardised) trait-matching function; defaults to 1 (implying a quadratically increasing weight of width in the optimisatino function, i.e. strongly acting against large values of sigma)}
 
 \item{err}{"baseline" probability of match, even if traits do not match at all;}
 

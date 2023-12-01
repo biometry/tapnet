@@ -35,6 +35,8 @@ fit <- fit_tapnet(tap, fit.delta = T) # fits on network 2 and 3
 str(gof_tapnet(fit) )
 pred1 <- predict_tapnet(fit, abuns=tap$networks[[1]]$abuns) # predict to forest network
 cor(as.vector(pred1*sum(tap$networks[[1]]$web)), as.vector(tap$networks[[1]]$web)) # correlation with observed interactions
+# slightly less bad with exp-link:
+#cor(as.vector(exp(pred1)/sum(exp(pred1))*sum(tap$networks[[1]]$web)), as.vector(tap$networks[[1]]$web)) # correlation with observed interactions
 fit
 
 # test TmatchMatrixList option:

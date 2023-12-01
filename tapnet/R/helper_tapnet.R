@@ -120,8 +120,8 @@ fit_abund <- function(tapnet){
 
 #' @rdname internalFunctions
 pems_from_tree <- function(tree) {
-  dirgraph <- Phylo2DirectedGraph(tree)
-  pem <- as.data.frame(PEM.build(dirgraph))
+  dirgraph <- MPSEM::Phylo2DirectedGraph(tree)
+  pem <- as.data.frame(MPSEM::PEM.build(dirgraph))
   # sort alphabetically:
   pem <- pem[order(rownames(pem)),]
   return(pem)
@@ -146,7 +146,7 @@ select_relevant_pems <- function(tree, # a phylogenetic tree
   # keep only those species also present in the subweb:
   PEMsallsub <- PEMsall[rownames(PEMsall) %in% species, ]
   #reduce tree to those species present in the web:
-  sub.tree <- keep.tip(tree, species, collapse.singles=FALSE) # 03SEP2023
+  sub.tree <- keep.tip(tree, species) #, collapse.singles=FALSE) # 03SEP2023
   # using drop not keep, as that allows for specifying the collapse.singles option,
   # otherwise I sometimes run into problems (for unknown reasons)
   #toDrop <- setdiff(tree$tip.label, species)

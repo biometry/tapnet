@@ -46,10 +46,8 @@ gof_tapnet <- function(
   gof <- list()
   
   # Check input format
-  if (class(tapnet) != "tapnet")
-    stop("'tapnet' must be an object produced by function 'simulate_tapnet'.")
-  if (class(fit) != "fitted.tapnet")
-    stop("'fit' must be an object produced by function 'fit_tapnet'.")
+  if (!is(tapnet, "tapnet"))     stop("'tapnet' must be an object produced by function 'simulate_tapnet'.")
+  if (! is(fit, "fitted.tapnet"))     stop("'fit' must be an object produced by function 'fit_tapnet'.")
   # TODO: Check that "tapnet" is the object that was used to produce "fit".
   
   

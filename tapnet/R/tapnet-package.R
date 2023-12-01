@@ -18,8 +18,9 @@
 #' 
 #' @section News/versions:
 #' \describe{
-#'   \item{0.5: XXX-YYY-2023}{
+#'   \item{0.5: 01-Dec-2023}{
 #'       \describe{
+#'           \item{Bug fix in \code{\link{make_tapnet}}:}{Did not set abundances and network dimensions to the same lengths. Now uses bipartite::empty along the way.}
 #'           \item{Bug fix in \code{\link{tapnet2df}}:}{Without traits the function threw an error.}
 #'           \item{Hand-coding interactions probabilities:}{Added option to hand over an externally prepared "mask" of "forbidden links", which is multiplied onto fits.}
 #'           \item{\code{\link{gof_tapnet}} output}{enriched by the fitted I_mat. There was no way to output the I_mat until now, so the fit_tapnet output was not really useable.}
@@ -32,15 +33,16 @@
 #' }
 #' 
 #'@section References:
-#' Benadi, G., Dormann, C.F., Fründ, J., Stephan, R.\& Vázquez, D.P. (2022) Quantitative prediction of interactions in bipartite networks based on traits, abundances, and phylogeny. \emph{The American Naturalist} \bold{199}, 841--854.
+#' Benadi, G., Dormann, C.F., Fründ, J., Stephan, R. & Vázquez, D.P. (2022) Quantitative prediction of interactions in bipartite networks based on traits, abundances, and phylogeny. \emph{The American Naturalist} \bold{199}, 841--854.
 #'
 #' @import stats
 #' @importFrom ape keep.tip
-#' @importFrom bipartite networklevel
+#' @importFrom bipartite networklevel empty
 #' @importFrom MPSEM Phylo2DirectedGraph PEM.build
 #' @importFrom phytools pbtree
 #' @importFrom utils stack
 #' @importFrom vegan vegdist
+#' @importFrom methods is
 #'
 #' @docType package
 #' @name tapnet-package
