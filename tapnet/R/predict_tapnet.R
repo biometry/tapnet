@@ -48,11 +48,11 @@ predict_tapnet <- function(#tapnet, # A tapnet object upon which the prediction 
   if (!is.list(abuns) | length(abuns) != 2)    stop("'abuns' must be a list of lower and higher trophic level abundances.")
   
   IsNamedVector <- function(vec) {
-    is.vector(vec) & is.numeric(vec) & !is.null(names(vec)) & !any(is.na(names(vec)))
+    # from here: https://stackoverflow.com/questions/34424622/how-to-test-if-an-r-object-is-a-named-numeric-vector
+    (is.vector(vec) | is.array(vec) ) & is.numeric(vec) & !is.null(names(vec)) & !any(is.na(names(vec)))
   } 
   
-  if (!IsNamedVector(abuns[[1]]) | !IsNamedVector(abuns[[2]]))
-    stop("Abundances must be vectors with named elements (species names).")
+  if (!IsNamedVector(abuns[[1]]) | !IsNamedVector(abuns[[2]]))    stop("Abundances must be vectors with named elements (species names).")
   
   # Check that all species occur in the phylogenetic tree:
   if (!all(names(abuns[[1]]) %in% tapnet$trees$low$tip.label) |

@@ -13,7 +13,8 @@ make_tapnet(
   traits_low = NULL,
   traits_high = NULL,
   npems_lat = NULL,
-  use.all.pems = FALSE
+  use.all.pems = FALSE,
+  empty = TRUE
 )
 }
 \arguments{
@@ -34,6 +35,8 @@ make_tapnet(
 \item{npems_lat}{number of phylogenetic eigenvectors to be used to construct latent traits. If NULL, all eigenvectors will be used.}
 
 \item{use.all.pems}{option to force the function to use all phylogenetic eigenvectors, not only those useful for describing the specific network's species.}
+
+\item{empty}{logical; should networks be emptied of all-0 rows or columns? Defaults to TRUE.}
 }
 \value{
 A tapnet object, i.e. an thoroughly organised list with the inputs as entries. If multiple networks are provided, each has its own list entry, with PEMs, traits and abundances given for each network separately, in addition to the overall phylogenetic eigenvectors across all networks. See example for, well, for an example.

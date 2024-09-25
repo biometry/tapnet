@@ -10,7 +10,7 @@
 #'   \item{\code{select_relevant_pems}}{identifies those phylogenetic eigenvectors (PEMs) of the full tree most relevant for a network containing only a subset of species;}
 #'   \item{\code{tmatch}}{calculates interaction probabilities based on trait matching;}
 #'   \item{\code{param_vec2list}}{converts a vector of parameters (for trait matching and latent trait combinations) into a named list;}
-#'   \item{\code{loglik_tapnet}}{the log-likelihood function for fitting the tapnet model; actually quite an important function, easy to break, so not for the user to easily access;}
+#'   \item{\code{loglik_tapnet}}{the (negative!) log-likelihood function for fitting the tapnet model; actually quite an important function, easy to break, so not for the user to easily access;}
 #'   \item{\code{latent_cor}}{computes correlation of fitted latent with true constructed traits for simulated data;}
 #'   \item{\code{web_indices}}{computes the specified network indices for the provided network, after turning the prediction vector into a matrix;}
 #'   \item{\code{refit_params}}{Simulate new networks from a fitted tapnet object, re-fit on the simulated network and output the parameter values.}
@@ -236,7 +236,7 @@ loglik_tapnet <- function(params, # Parameters (a *named* vector)
 ) {
   # Compute value of the objective function for fitting given the parameter values and "tap" data
   
-  if (is.null(names(params))) stop("Parameter vector must be named!")
+  #if (is.null(names(params))) stop("Parameter vector must be named!")
   
   # Convert parameter vector to a list for simnetfromtap:
   if (tmatch_type_pem != "no"){
@@ -269,6 +269,12 @@ loglik_tapnet <- function(params, # Parameters (a *named* vector)
       I_mat <- I_mat * TmatchMatrixList[[i]]
       I_mat <- I_mat/sum(I_mat)
     }
+    
+    #cat(I_mat) # check what I_mat looks like!
+    
+    if (all(I_mat == 0)) I_mat[sample(prod(dim(I_mat)), 1)] <- 0.1 # if all are 0, make one non-zero to avoid error in optimiser
+    if (all(I_mat < 0)) stop("All entries in I_mat are negative!")
+    
     if (obj_function == "multinom") {
       obj[i] <- dmultinom(as.vector(networks[[i]]$web), size = sum(networks[[i]]$web),
                           prob = as.vector(I_mat), log = TRUE)

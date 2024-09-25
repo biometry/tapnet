@@ -1,10 +1,10 @@
 #' Fit the tapnet model to a network
 #'
-#' Estimates the parameters of the tapnet model by log-likelihood based on the observed network(s)
+#' Estimates the parameters of the tapnet model by log-likelihood based on the observed network(s) using DEoptim
 #'
 #' The core function for using the tapnet approach: it fits the model to the data (= networks). Then, the estimated parameters can be used to predict to other networks (using \code{\link{predict_tapnet}}).
 #'
-#' @aliases fit_tapnet
+#' @aliases fit_tapnetDE
 #' 
 #' @param tapnet a tapnet object;
 #' @param ini initial parameter values for the optimization; optional;
@@ -12,9 +12,8 @@
 #' @param tmatch_type_obs type of trait matching function for observed traits, currently "normal" or "shiftlnorm";
 #' @param TmatchMatrixList list of independent trait-matching matrices (one per network);
 #' @param lambda LASSO shrinkage factor for latent trait parameters;
-#' @param method Optimization method (most derivative-based approaches will not work! SANN is a (slow) alternative to the default);
-#' @param maxit Maximum number of steps for optimization;
-#' @param hessian logical: output hessian for calculation of standard errors?
+#' @param strategy defines the Differential Evolution strategy used in the optimization procedure (see help of DEoptim);
+#' @param itermax Maximum number of generations for optimization;
 #' @param obj_function Objective function for the optimization, either "multinom" or "sq_diff" (or "bjorn");
 #' @param fit.delta logical; should the parameter delta be fitted? It allows tapnet to down-weigh the importance of trait matching relative to abundances. Defaults to FALSE.
 #' 
@@ -22,29 +21,29 @@
 #' 
 #' 
 #' 
-#' @references Benadi et al. in prep
+#' @references Benadi, G., Dormann, C. F., Fründ, J., Stephan, R., & Vázquez, D. P. (2022). Quantitative prediction of interactions in bipartite networks based on traits, abundances, and phylogeny. The American Naturalist, 199(6), 841–854. https://doi.org/10.1086/714420
+#' 
 #'
-#' @author Gita Benadi <gita.benadi@biom.uni-freiburg.de> and Carsten Dormann <carsten.dormann@biom.uni-freiburg.de>
+#' @author Carsten Dormann <carsten.dormann@biom.uni-freiburg.de>
 #'
 #' @examples
 #' \donttest{ # takes about 35 s
 #'  data(Tinoco)
 #'  tap <- make_tapnet(tree_low = plant_tree, tree_high = humm_tree, networks = networks[2:3], 
 #'         traits_low = plant_traits, traits_high = humm_traits, npems_lat = 4)
-#'  fit <- fit_tapnet(tap) # fits to networks 2 and 3 only
+#'  fit <- fit_tapnetDE(tap) # fits to networks 2 and 3 only
 #'  str(fit)
 #' }  
 #'
 #' @export
-fit_tapnet <- function(tapnet, # a tapnet object
+fit_tapnetDE <- function(tapnet, # a tapnet object
                        ini = NULL, # initial parameter values for the optimization
                        tmatch_type_pem = "normal", # type of trait matching function for latent traits
                        tmatch_type_obs = "normal", # type of trait matching function for observed traits
                        TmatchMatrixList = NULL, # list of pre-formulated trait-matching probability matrices, e.g. for phenology or known forbidden links; will be multiplied onto internally computed trait matching; must have as many matrices as there are networks in the tapnet object!
                        lambda = 0, # LASSO shrinkage factor for latent trait parameters
-                       method = "Nelder", # Optimization method
-                       maxit = 50000, # Maximum number of steps for optimization
-                       hessian = FALSE, # Output hessian for calculation of standard errors?
+                       strategy = 2, # DEoptim default
+                       itermax = 500, # Maximum number of steps for generations
                        obj_function = "multinom", # Objective function for the optimization,
                        # either "multinom" or "sq_diff"
                        fit.delta=FALSE # shall the abundance-modifier delta be fit?
@@ -106,17 +105,21 @@ fit_tapnet <- function(tapnet, # a tapnet object
   if (!fit.delta) ini <- ini[-which(names(ini) == "delta")]
   #test:
   # loglik_tapnet(ini, networks = tapnet$networks, tmatch_type_pem = tmatch_type_pem, tmatch_type_obs = tmatch_type_obs, lambda = lambda, fit.delta=F)
+  lowInf <- upInf <- ini
+  lowInf[1:length(ini)] <- 0.000001 # rather arbitrary!!!
+  upInf[1:length(ini)] <- 20
+  #lowInf[(length(ini)-1):length(ini)] <- 0.0001 # lower limit for sd of tmatch
   
   # Optimization
-  opt <- optim(par = ini, fn = loglik_tapnet, networks = tapnet$networks,
+  opt <- DEoptim(fn = loglik_tapnet, lower=lowInf, upper=upInf, networks = tapnet$networks,
                tmatch_type_pem = tmatch_type_pem, tmatch_type_obs = tmatch_type_obs, lambda = lambda, fit.delta=fit.delta,
-               control = list(maxit = maxit), method = method, hessian = hessian, obj_function = obj_function, TmatchMatrixList=TmatchMatrixList)
+               control = DEoptim.control(itermax = itermax, strategy = strategy), obj_function = obj_function, TmatchMatrixList=TmatchMatrixList)
 
   # Convert optimized parameter vector to a named list 
   par_opt <- param_vec2list(opt$par, n = length(pem_names_low), m = length(pem_names_high), fit.delta=fit.delta)
   if (!fit.delta) par_opt[["delta"]] <- c("delta constant"=1)
   
-  out <- list(par_opt = par_opt, tmatch_type_pem = tmatch_type_pem, tmatch_type_obs = tmatch_type_obs, lambda = lambda, method = method, maxit = maxit, opt = opt)
+  out <- list(par_opt = par_opt, tmatch_type_pem = tmatch_type_pem, tmatch_type_obs = tmatch_type_obs, lambda = lambda, strategy = strategy, itermax = itermax, opt = opt)
   class(out) <- "fitted.tapnet"
   attr(out, "tapnet_name") <- as.character(substitute(tapnet))
   return(out)

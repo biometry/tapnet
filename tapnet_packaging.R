@@ -1,5 +1,5 @@
 library(devtools)
-setwd("~/Data/aktuell/Networks/tapnet/tapnet")
+setwd("~/Data/repositories/tapnet/tapnet")
 document() # process R-functions into .RD files, change namespace
 #tools::compactPDF("vignettes/", gs_quality = "ebook")
 
@@ -31,7 +31,13 @@ R CMD check tapnet_0.4.tar.gz --as-cran
 library(tapnet)
 data(Tinoco)
 tap <- make_tapnet(tree_low = plant_tree, tree_high = humm_tree, networks = networks[2:3], traits_low = plant_traits, traits_high = humm_traits, abun_low=plant_abun[2:3], abun_high=humm_abun[2:3], npems_lat = 4)
-fit <- fit_tapnet(tap, fit.delta = T) # fits on network 2 and 3
+system.time(fit <- fit_tapnet(tap, fit.delta = T)) # fits on network 2 and 3
+system.time(fitBFGS <- fit_tapnet(tap, fit.delta = T, method="BFGS")) # I_mat ERROR!!!!
+system.time(fitCG <- fit_tapnet(tap, fit.delta = T, method="CG")) # worse than default
+system.time(fitSANN <- fit_tapnet(tap, fit.delta = T, method="SANN", maxit=1e5)) # 140s
+# fitSANN substantially worse in objective than default
+#fitDE <- fit_tapnetDE(tap, fit.delta = F) # fits on network 2 and 3
+
 str(gof_tapnet(fit) )
 pred1 <- predict_tapnet(fit, abuns=tap$networks[[1]]$abuns) # predict to forest network
 cor(as.vector(pred1*sum(tap$networks[[1]]$web)), as.vector(tap$networks[[1]]$web)) # correlation with observed interactions
@@ -80,10 +86,11 @@ A <- A/sum(A)
 cor(as.vector(A), as.vector(si$networks[[1]]$I_mat)) # this should be 1, as we use neither traits nor PEMs
 # shows that simulate_tapnet uses PEMs even when ntraits_pem=0!!
 
+
 #### wishlist: ####
 * add function similar to select_relevant_pems to cut phylotree to species present EVEN when calling "use.all.pems=T" in make_tapnet (wish by Amanda)
 * add correlation method option to gof (not only Spearman)
-* add deOptim as optimiser (more robust but still fast, I hope)
+* add DEoptim as optimiser (more robust but still fast, I hope): problem with parameters leading to NaN in I_mat!!
 * find data suitable for analysis and include in the package, e.g. https://doi.org/10.5061/dryad.nk98sf7sc (Wang et al., 2020). 
 * add check for non-integer response?
 * make a function for trait matching for phenology: give distribution for tmatch, e.g. Gaussian or uniform; or directly provide a phenology-match-matrix as input

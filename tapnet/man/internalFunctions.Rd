@@ -118,7 +118,7 @@ They do roughly the following:
   \item{\code{select_relevant_pems}}{identifies those phylogenetic eigenvectors (PEMs) of the full tree most relevant for a network containing only a subset of species;}
   \item{\code{tmatch}}{calculates interaction probabilities based on trait matching;}
   \item{\code{param_vec2list}}{converts a vector of parameters (for trait matching and latent trait combinations) into a named list;}
-  \item{\code{loglik_tapnet}}{the log-likelihood function for fitting the tapnet model; actually quite an important function, easy to break, so not for the user to easily access;}
+  \item{\code{loglik_tapnet}}{the (negative!) log-likelihood function for fitting the tapnet model; actually quite an important function, easy to break, so not for the user to easily access;}
   \item{\code{latent_cor}}{computes correlation of fitted latent with true constructed traits for simulated data;}
   \item{\code{web_indices}}{computes the specified network indices for the provided network, after turning the prediction vector into a matrix;}
   \item{\code{refit_params}}{Simulate new networks from a fitted tapnet object, re-fit on the simulated network and output the parameter values.}

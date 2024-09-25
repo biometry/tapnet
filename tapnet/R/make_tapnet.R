@@ -14,6 +14,7 @@
 #' @param traits_low lower trophic level traits (species x traits matrix with row and column names); optional;
 #' @param npems_lat number of phylogenetic eigenvectors to be used to construct latent traits. If NULL, all eigenvectors will be used.
 #' @param use.all.pems option to force the function to use all phylogenetic eigenvectors, not only those useful for describing the specific network's species.
+#' @param empty logical; should networks be emptied of all-0 rows or columns? Defaults to TRUE.
 #'
 #' @return A tapnet object, i.e. an thoroughly organised list with the inputs as entries. If multiple networks are provided, each has its own list entry, with PEMs, traits and abundances given for each network separately, in addition to the overall phylogenetic eigenvectors across all networks. See example for, well, for an example.
 #'
@@ -37,7 +38,8 @@ make_tapnet <- function(tree_low, # phylogenetic tree of lower trophic level (re
                         traits_low = NULL, # lower trophic level traits (species x traits matrix with row and column names, optional)
                         traits_high = NULL, # higher trophic level traits (species x traits matrix with row and column names, optional)
                         npems_lat = NULL, # Number of phylogenetic eigenvectors to be used to construct latent traits. If NULL, all eigenvectors will be used.
-                        use.all.pems=FALSE # sort through phylogenetic eigenvectors and use only those relevant for this network (see helper function select_relevant_pems).
+                       use.all.pems=FALSE, # sort through phylogenetic eigenvectors and use only those relevant for this network (see helper function select_relevant_pems).
+                        empty=TRUE
 ) {
   # Construct an object of class "tapnet" from the supplied data
   
@@ -113,15 +115,15 @@ make_tapnet <- function(tree_low, # phylogenetic tree of lower trophic level (re
   
   # Traits
   if (!is.null(traits_low) | !is.null(traits_high)) {
-    if (is.null(traits_low) | is.null(traits_high)) {
-      stop("Trait data must be supplied for both trophic levels.")
-    }
-    if (!is.matrix(traits_low) | !is.matrix(traits_high)) {
+  #  if (is.null(traits_low) | is.null(traits_high)) {
+  #    stop("Trait data must be supplied for both trophic levels.")
+  #  }
+  if (!is.matrix(traits_low) | !is.matrix(traits_high)) {
       stop("'traits_low' and 'traits_high' must be matrices.")
     }
-    if (ncol(traits_low) != ncol(traits_high)) {
-      stop("Numbers of traits of lower and higher trophic level must be equal.")
-    }
+  #  if (ncol(traits_low) != ncol(traits_high)) {
+  #    stop("Numbers of traits of lower and higher trophic level must be equal.")
+  #  }
     # Do all interacting species have trait data?
     if (!all(spec_lower %in% rownames(traits_low))) stop("Some lower level species have missing trait data.")
     if (!all(spec_higher %in% rownames(traits_high))) stop("Some higher level species have missing trait data.")
@@ -139,11 +141,17 @@ make_tapnet <- function(tree_low, # phylogenetic tree of lower trophic level (re
   }
   
   webs <- list()
-  for (i in 1:length(networks)) {
+  for (i in 1:length(networks)) { # sort names alphabetically
     webs[[i]] <- list()
-    webs[[i]]$web <- bipartite::empty(networks[[i]])
-    speciesLow <- sort(rownames(bipartite::empty(networks[[i]])))
-    speciesHigh <- sort(colnames(bipartite::empty(networks[[i]])))
+    if (empty){
+      webs[[i]]$web <- bipartite::empty(networks[[i]])
+      speciesLow <- sort(rownames(bipartite::empty(networks[[i]])))
+      speciesHigh <- sort(colnames(bipartite::empty(networks[[i]])))
+    } else {
+      webs[[i]]$web <- networks[[i]]
+      speciesLow <- sort(rownames(networks[[i]]))
+      speciesHigh <- sort(colnames(networks[[i]]))
+    }
     if (use.all.pems == FALSE){
       pems_web_low <- select_relevant_pems(tree_low, rownames(networks[[i]]))
     } else {
@@ -191,9 +199,17 @@ make_tapnet <- function(tree_low, # phylogenetic tree of lower trophic level (re
       for (i in 1:length(networks)) webs[[i]]$traits <- NULL
     } else {
       for (i in 1:length(networks)) {
-        traits_web_low <- traits_low[which(rownames(traits_low) %in% rownames(bipartite::empty(networks[[i]]))), , drop = F]
+        if (empty){
+          traits_web_low <- traits_low[which(rownames(traits_low) %in% rownames(bipartite::empty(networks[[i]]))), , drop = F]
+        } else {
+          traits_web_low <- traits_low[which(rownames(traits_low) %in% rownames(networks[[i]])), , drop = F]
+        }
         traits_web_low <- traits_web_low[order(rownames(traits_web_low)), , drop = F] # sort species alphabetically
-        traits_web_high <- traits_high[which(rownames(traits_high) %in% colnames(bipartite::empty(networks[[i]]))), , drop = F]
+        if (empty){
+          traits_web_high <- traits_high[which(rownames(traits_high) %in% colnames(bipartite::empty(networks[[i]]))), , drop = F]
+        } else {
+          traits_web_high <- traits_high[which(rownames(traits_high) %in% colnames(networks[[i]])), , drop = F]
+        }
         traits_web_high <- traits_web_high[order(rownames(traits_web_high)), , drop = F] # sort species alphabetically
         webs[[i]]$traits <- list(low = traits_web_low, high = traits_web_high)
       }
