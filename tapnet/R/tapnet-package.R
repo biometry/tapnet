@@ -40,7 +40,7 @@
 #' }
 #' 
 #'@section References:
-#' Benadi, G., Dormann, C.F., Fründ, J., Stephan, R. & Vázquez, D.P. (2022) Quantitative prediction of interactions in bipartite networks based on traits, abundances, and phylogeny. \emph{The American Naturalist} \bold{199}, 841--854.
+#' Benadi, G., Dormann, C.F., Fründ, J., Stephan, R. and Vázquez, D.P. (2022) Quantitative prediction of interactions in bipartite networks based on traits, abundances, and phylogeny. \emph{The American Naturalist} \bold{199}, 841--854.
 #'
 #' @import stats DEoptim
 #' @importFrom ape keep.tip
@@ -51,6 +51,6 @@
 #' @importFrom vegan vegdist
 #' @importFrom methods is
 #'
-#' @docType _PACKAGE
+#' @keywords internal "_PACKAGE"
 #' @name tapnet-package
 NULL
