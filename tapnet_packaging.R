@@ -5,7 +5,7 @@ document() # process R-functions into .RD files, change namespace
 
 ## Starting from here, the performance seems to vary:
 setwd("..")
-build("tapnet", args="--compact-vignettes=gs+qpdf", binary=F) 
+build("tapnet", args="--compact-vignettes=both", binary=F) 
 install("tapnet") # install on the computer
 devtools::check("tapnet", args="--as-cran")
 # I don't get why it returns a warning about compactable PDF: it IS compacted and there is nothing anyone can do about this in the build!

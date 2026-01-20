@@ -18,9 +18,8 @@
 #' 
 #' @section News/versions:
 #' \describe{
-#'   \item{0.6: xx-xxx-2024}{
+#'   \item{0.6: 20-Jan-2026}{
 #'       \describe{
-#'          \item{Added function \code{\link{fit_tapnetDE}}:}{Uses DEoptim to fit tapnet.}
 #'          \item{Relaxation of type check in \code{\link{predict_tapnet}}}{Allowed abundances to be named 1-dimensional arrays, too.}
 #'       }
 #'   }
@@ -42,7 +41,7 @@
 #'@section References:
 #' Benadi, G., Dormann, C.F., Fründ, J., Stephan, R. and Vázquez, D.P. (2022) Quantitative prediction of interactions in bipartite networks based on traits, abundances, and phylogeny. \emph{The American Naturalist} \bold{199}, 841--854.
 #'
-#' @import stats DEoptim
+#' @import stats
 #' @importFrom ape keep.tip
 #' @importFrom bipartite networklevel empty
 #' @importFrom MPSEM Phylo2DirectedGraph PEM.build

@@ -29,9 +29,8 @@ At present only predictions to altered abundances are possible. To predict to a 
 \section{News/versions}{
 
 \describe{
-  \item{0.6: xx-xxx-2024}{
+  \item{0.6: 20-Jan-2026}{
       \describe{
-         \item{Added function \code{\link{fit_tapnetDE}}:}{Uses DEoptim to fit tapnet.}
          \item{Relaxation of type check in \code{\link{predict_tapnet}}}{Allowed abundances to be named 1-dimensional arrays, too.}
       }
   }
